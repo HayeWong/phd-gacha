@@ -1,0 +1,494 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <title>博士日常扭蛋机</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <style>
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      background: #020617;
+      color: #e5e7eb;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+    }
+
+    .app {
+      width: 100%;
+      max-width: 720px;
+      padding: 24px 20px 18px;
+      background: rgba(15, 23, 42, 0.95);
+      border-radius: 18px;
+      border: 1px solid rgba(148, 163, 184, 0.4);
+      box-shadow: 0 20px 50px rgba(0, 0, 0, 0.6);
+    }
+
+    h1 {
+      margin: 0 0 8px;
+      font-size: 24px;
+    }
+
+    .subtitle {
+      margin: 0 0 20px;
+      font-size: 14px;
+      color: #9ca3af;
+    }
+
+    .status-row {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      margin-bottom: 16px;
+    }
+
+    .status-item {
+      font-size: 12px;
+    }
+
+    .status-label {
+      display: flex;
+      justify-content: space-between;
+      margin-bottom: 2px;
+    }
+
+    .status-name {
+      color: #9ca3af;
+    }
+
+    .status-value {
+      color: #e5e7eb;
+    }
+
+    .bar {
+      position: relative;
+      width: 100%;
+      height: 8px;
+      border-radius: 999px;
+      background: #020617;
+      overflow: hidden;
+      border: 1px solid #111827;
+    }
+
+    .bar-fill {
+      position: absolute;
+      left: 0;
+      top: 0;
+      bottom: 0;
+      width: 50%;
+      border-radius: 999px;
+      background: linear-gradient(90deg, #22c55e, #4ade80);
+      transition: width 0.25s ease;
+    }
+
+    .bar-fill.stress {
+      background: linear-gradient(90deg, #f97316, #ef4444);
+    }
+
+    .bar-fill.thesis {
+      background: linear-gradient(90deg, #38bdf8, #6366f1);
+    }
+
+    .controls {
+      margin-bottom: 18px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      flex-wrap: wrap;
+    }
+
+    button {
+      padding: 10px 18px;
+      border-radius: 999px;
+      border: none;
+      cursor: pointer;
+      font-size: 14px;
+      font-weight: 500;
+      background: #4f46e5;
+      color: white;
+      white-space: nowrap;
+    }
+
+    button[disabled] {
+      opacity: 0.6;
+      cursor: not-allowed;
+    }
+
+    button:hover:not([disabled]) {
+      filter: brightness(1.05);
+    }
+
+    button:active:not([disabled]) {
+      transform: translateY(1px);
+    }
+
+    .counter {
+      font-size: 12px;
+      color: #9ca3af;
+    }
+
+    .event-box {
+      margin-top: 10px;
+      padding: 16px 14px;
+      border-radius: 14px;
+      background: #020617;
+      border: 1px solid #374151;
+      min-height: 80px;
+    }
+
+    .event-title {
+      font-size: 13px;
+      font-weight: 600;
+      color: #a5b4fc;
+      margin-bottom: 6px;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+    }
+
+    .event-text {
+      font-size: 14px;
+      line-height: 1.6;
+      white-space: pre-line;
+    }
+
+    .hidden {
+      display: none;
+    }
+
+    .ending-box {
+      margin-top: 16px;
+      padding: 14px 14px 12px;
+      border-radius: 12px;
+      background: #111827;
+      border: 1px solid #4b5563;
+      font-size: 13px;
+    }
+
+    .ending-title {
+      font-weight: 600;
+      margin: 0 0 6px;
+      color: #fbbf24;
+    }
+
+    footer {
+      margin-top: 18px;
+      font-size: 11px;
+      color: #6b7280;
+      text-align: right;
+    }
+  </style>
+</head>
+<body>
+  <div class="app">
+    <h1>博士日常扭蛋机</h1>
+    <p class="subtitle">
+      你可以开始读博了。
+    </p>
+
+    <div class="status-row">
+      <div class="status-item">
+        <div class="status-label">
+          <span class="status-name">SAN 值</span>
+          <span class="status-value" id="sanValue">60</span>
+        </div>
+        <div class="bar">
+          <div class="bar-fill" id="sanBar"></div>
+        </div>
+      </div>
+      <div class="status-item">
+        <div class="status-label">
+          <span class="status-name">压力值</span>
+          <span class="status-value" id="stressValue">30</span>
+        </div>
+        <div class="bar">
+          <div class="bar-fill stress" id="stressBar"></div>
+        </div>
+      </div>
+      <div class="status-item">
+        <div class="status-label">
+          <span class="status-name">大论文进度</span>
+          <span class="status-value" id="thesisValue">0</span>
+        </div>
+        <div class="bar">
+          <div class="bar-fill thesis" id="thesisBar"></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="controls">
+      <button id="drawBtn">抽取今日事件</button>
+      <div class="counter">
+        第 <span id="day">1</span> 天 · 已抽 <span id="count">0</span> 次
+      </div>
+    </div>
+
+    <div id="eventBox" class="event-box hidden">
+      <div class="event-title">今日事件</div>
+      <p id="eventText" class="event-text"></p>
+    </div>
+
+    <div id="endingBox" class="ending-box hidden">
+      <p class="ending-title" id="endingTitle"></p>
+      <p id="endingText"></p>
+      <button id="restartBtn">重新开始本轮博士人生</button>
+    </div>
+
+    <footer>
+      纯属虚构，如有雷同，纯属博士生活的样本方差不大。
+    </footer>
+  </div>
+
+  <script>
+    // 游戏状态，只保留 san / stress / 大论文进度
+    const initialState = {
+      san: 60,
+      stress: 30,
+      thesisProgress: 0,
+      day: 1,
+      draws: 0,
+      ended: false
+    };
+
+    const state = { ...initialState };
+
+    // 事件池：每条附带 san / stress / thesis 的变化量
+    const events = [
+      {
+        text: "你决定今天一定要写完一节正文。",
+        sanDelta: +2,
+        stressDelta: +5,
+        thesisDelta: +10
+      },
+      {
+        text: "导师在群里发：“各位最近的进展可以简单汇报一下吗？”你花两个小时斟酌了 50 个字。",
+        sanDelta: -2,
+        stressDelta: +8,
+        thesisDelta: +3
+      },
+      {
+        text: "你准备认真看一篇文献，用了三十分钟找 PDF，又花三十分钟纠结要不要记笔记，然后去刷手机了。",
+        sanDelta: -3,
+        stressDelta: +5,
+        thesisDelta: 0
+      },
+      {
+        text: "你打开 Forest 定了 3 小时的倒计时，然后在学习 5 分钟后用网页刷起了小红书。",
+        sanDelta: -4,
+        stressDelta: +6,
+        thesisDelta: +1
+      },
+      {
+        text: "你本来打算早点睡，结果为了安慰自己“今天也不是完全没干活”，在睡前打开了 Zotero。",
+        sanDelta: -1,
+        stressDelta: +4,
+        thesisDelta: +2
+      },
+      {
+        text: "在走廊遇到导师，装作没看见，你低头绕走了。",
+        sanDelta: -2,
+        stressDelta: +5,
+        thesisDelta: 0
+      },
+      {
+        text: "你打开前两个月写下的草稿，发现完全看不懂自己在写什么。",
+        sanDelta: -5,
+        stressDelta: +4,
+        thesisDelta: 0
+      },
+      {
+        text: "你花了半天时间帮本科生改作业，突然意识到自己论文还没过开题。",
+        sanDelta: -2,
+        stressDelta: +6,
+        thesisDelta: +1
+      },
+      {
+        text: "你看到同门在朋友圈发“新文 under review”，你关掉朋友圈，打开外卖软件。",
+        sanDelta: -3,
+        stressDelta: +5,
+        thesisDelta: 0
+      },
+      {
+        text: "你点开邮件，发现三周前鼓起勇气给大牛写的那封长邮件，依旧没有得到回复。",
+        sanDelta: -4,
+        stressDelta: +4,
+        thesisDelta: 0
+      },
+      {
+        text: "系里举行学术讲座，你全程听懂了开头的寒暄和结尾的“时间关系，我就讲到这里”。",
+        sanDelta: -1,
+        stressDelta: +2,
+        thesisDelta: +1
+      },
+      {
+        text: "你在写作软件里统计字数，发现删掉的比写出来的还多。",
+        sanDelta: -3,
+        stressDelta: +4,
+        thesisDelta: +2
+      },
+      {
+        text: "你安慰自己今天状态不好，决定明天再开始。",
+        sanDelta: +1,
+        stressDelta: +1,
+        thesisDelta: 0
+      },
+      {
+        text: "你在自习室默默学习一整天，晚上回宿舍被问“你最近好像挺闲的”。",
+        sanDelta: -2,
+        stressDelta: +3,
+        thesisDelta: +4
+      },
+      {
+        text: "你准备好好休息一天，结果导师发来一篇新文献让你“顺便看看”。",
+        sanDelta: -3,
+        stressDelta: +5,
+        thesisDelta: +2
+      },
+      {
+        text: "你尝试向别人解释你的课题，对方认真听完之后问：“那以后能找什么工作？”",
+        sanDelta: -4,
+        stressDelta: +4,
+        thesisDelta: 0
+      }
+    ];
+
+    function clamp(value, min, max) {
+      return Math.max(min, Math.min(max, value));
+    }
+
+    function pickRandom(list) {
+      const index = Math.floor(Math.random() * list.length);
+      return list[index];
+    }
+
+    function updateUI() {
+      const sanValue = document.getElementById("sanValue");
+      const stressValue = document.getElementById("stressValue");
+      const thesisValue = document.getElementById("thesisValue");
+      const sanBar = document.getElementById("sanBar");
+      const stressBar = document.getElementById("stressBar");
+      const thesisBar = document.getElementById("thesisBar");
+      const daySpan = document.getElementById("day");
+      const countSpan = document.getElementById("count");
+
+      sanValue.textContent = state.san;
+      stressValue.textContent = state.stress;
+      thesisValue.textContent = state.thesisProgress;
+
+      sanBar.style.width = state.san + "%";
+      stressBar.style.width = state.stress + "%";
+      thesisBar.style.width = state.thesisProgress + "%";
+
+      daySpan.textContent = state.day;
+      countSpan.textContent = state.draws;
+    }
+
+    function checkEnding() {
+      // 简单结局规则，可以以后再细化
+      if (state.san <= 0) {
+        return {
+          id: "collapse",
+          title: "结局：精神崩溃",
+          text: "任何一句“要不你先休学调整一下状态”听起来都不再像玩笑。你在宛平南路600号过上了之前梦寐以求的衣食无忧的日子。"
+        };
+      }
+
+      if (state.stress >= 100 && state.thesisProgress < 60) {
+        return {
+          id: "burnout",
+          title: "结局：学术倦怠",
+          text: "大论文却迟迟不成型。你开始认真研究退学流程说明。"
+        };
+      }
+
+      if (state.thesisProgress >= 100 && state.san >= 30 && state.stress <= 80) {
+        return {
+          id: "grad_ok",
+          title: "结局：体面毕业",
+          text: "你把大论文完整地交了上去。能拿到教职吗？你不敢想。至少现在，你还是毕业了。"
+        };
+      }
+
+      if (state.thesisProgress >= 100 && state.san < 30) {
+        return {
+          id: "grad_dark",
+          title: "结局：疲惫毕业",
+          text: "你以不太健康的方式冲完了大论文。从形式上看一切顺利，只是你已经不确定自己是否还想再写任何学术文字。你唯一确定的事，你患上了学术阳痿。"
+        };
+      }
+
+       if (state.thesisProgress >= 100 && state.san < 30) {
+        return {
+          id: "grad_dark",
+          title: "结局：疲惫毕业",
+          text: "你以不太健康的方式冲完了大论文。从形式上看一切顺利，只是你已经不确定自己是否还想再写任何学术文字。你唯一确定的事，你患上了学术阳痿。"
+        };
+      }
+      
+      return null;
+    }
+
+    function applyEvent(event) {
+      // 压力越高，写作效率越低
+      const slowFactor = Math.max(0.2, 1 - state.stress / 120);
+
+      state.san = clamp(state.san + event.sanDelta, 0, 100);
+      state.stress = clamp(state.stress + event.stressDelta, 0, 100);
+
+      const thesisGain = Math.round(event.thesisDelta * slowFactor);
+      state.thesisProgress = clamp(state.thesisProgress + thesisGain, 0, 100);
+
+      state.day += 1;
+      state.draws += 1;
+    }
+
+    document.addEventListener("DOMContentLoaded", () => {
+      const drawBtn = document.getElementById("drawBtn");
+      const eventBox = document.getElementById("eventBox");
+      const eventText = document.getElementById("eventText");
+      const endingBox = document.getElementById("endingBox");
+      const endingTitle = document.getElementById("endingTitle");
+      const endingText = document.getElementById("endingText");
+      const restartBtn = document.getElementById("restartBtn");
+
+      updateUI();
+
+      drawBtn.addEventListener("click", () => {
+        if (state.ended) return;
+
+        const event = pickRandom(events);
+        eventText.textContent = event.text;
+        eventBox.classList.remove("hidden");
+
+        applyEvent(event);
+        updateUI();
+
+        const ending = checkEnding();
+        if (ending) {
+          state.ended = true;
+          endingTitle.textContent = ending.title;
+          endingText.textContent = ending.text;
+          endingBox.classList.remove("hidden");
+          drawBtn.disabled = true;
+          drawBtn.textContent = "游戏已结束";
+        }
+      });
+
+      restartBtn.addEventListener("click", () => {
+        Object.assign(state, { ...initialState });
+        updateUI();
+        eventBox.classList.add("hidden");
+        endingBox.classList.add("hidden");
+        document.getElementById("eventText").textContent = "";
+        drawBtn.disabled = false;
+        drawBtn.textContent = "抽取今日事件";
+      });
+    });
+  </script>
+</body>
+</html>
