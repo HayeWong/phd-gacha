@@ -2,7 +2,7 @@
 <html lang="zh-CN">
 <head>
   <meta charset="UTF-8" />
-  <title>人文社科博士生生存模拟器</title>
+  <title>人文社科博士模拟器</title>
   <style>
     body {
       font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
@@ -146,7 +146,7 @@
 
   <!-- 初始配置界面 -->
   <div id="setup-screen" class="card">
-    <h2>选择初始特质（每栏恰好选 2 个，互斥强制生效）</h2>
+    <h2>选择初始特质（每栏 2 个）</h2>
     <div class="flex">
       <div class="col">
         <h3>身体</h3>
@@ -192,7 +192,7 @@
         <span class="pill" id="chosen-relation-pill"></span>
       </div>
       <p class="muted" style="margin-top:4px;">
-        每次点击「执行本月」，都会进入下一月：先结算本月主线任务，然后抽取一个随机事件，最后检查是否触发结局。
+        每次点击「执行本月」，都会进入下一月：先结算本月主线任务，然后抽取一个随机事件。
       </p>
     </div>
 
@@ -241,22 +241,22 @@ const TRAITS = [
   {
     group: "body",
     name: "事已至此先吃饭吧",
-    desc: "你大便通畅，睡眠良好，食欲旺盛，事不关己。所有情绪波动都像蒙了一层保鲜膜。"
+    desc: "你大便通畅，睡眠良好，食欲旺盛，事不关己。"
   },
   {
     group: "body",
     name: "钢铁般的乐观主义者",
-    desc: "你真心觉得“总会有办法”。不太容易彻底崩溃，也不太容易真正认真起来。"
+    desc: "你真心觉得“总会有办法”。"
   },
   {
     group: "body",
     name: "完美主义",
-    desc: "对“差不多”“还没好”都过敏。你会写得更干净，也会更频繁想删库跑路。"
+    desc: "对“差不多”“还没好”都过敏。"
   },
   {
     group: "body",
     name: "体育健将",
-    desc: "每周会抽出八天时间强身健体。躯体像是你唯一可信的生产资料。"
+    desc: "每周会抽出八天时间强身健体"
   },
   {
     group: "body",
@@ -266,12 +266,12 @@ const TRAITS = [
   {
     group: "body",
     name: "超绝钝感力",
-    desc: "不太容易遇到精神危机，对选题也通常没什么想法。世界像是加了一层消音棉。"
+    desc: "不太容易遇到精神危机，对选题也通常没什么想法。"
   },
   {
     group: "body",
     name: "咖啡是一种人类增强",
-    desc: "习惯用各种“化学手段”调整状态：尼古丁、乙醇、咖啡因、辅酶、褪黑素……你靠配方维持运转。"
+    desc: "习惯用各种“化学手段”调整状态，包括但不限于尼古丁、乙醇、咖啡因；醒来第一件事是鱼油辅酶氨糖叶黄素脑白金，睡前一套小连招是通便纤维热牛奶褪黑素和冥想。"
   },
   {
     group: "body",
@@ -283,12 +283,12 @@ const TRAITS = [
   {
     group: "academic",
     name: "卷王",
-    desc: "卷死同行累死自己，主打一个性价比。写得多，拒稿也多。"
+    desc: "卷死同行累死自己主打一个性价比。"
   },
   {
     group: "academic",
     name: "嫡长子",
-    desc: "还能多说什么呢，你从本科就跟着你的大牛博导做项目了。资源与剥削并存。"
+    desc: "还能多说什么呢，你从本科就跟着你的大牛博导做项目了"
   },
   {
     group: "academic",
@@ -298,7 +298,7 @@ const TRAITS = [
   {
     group: "academic",
     name: "学术左派",
-    desc: "你做应用导向的前沿课题和最 fancy 最 posh 的话题，时刻盯着现实世界的伤口。"
+    desc: "你做应用导向的前沿课题和最 fancy 最 posh 的话题"
   },
   {
     group: "academic",
@@ -313,19 +313,19 @@ const TRAITS = [
   {
     group: "academic",
     name: "凤尾",
-    desc: "你的组异常强悍，但你永远是合照最边缘的那张脸。资源多，存在感薄。"
+    desc: "你的组异常强悍，但你永远是合照最边缘的那张脸"
   },
 
   // 关系
   {
     group: "relation",
     name: "活人感",
-    desc: "团队中的每个人都喜欢你。你是组里的情绪稳定器和润滑剂。"
+    desc: "团队中的每个人都喜欢你"
   },
   {
     group: "relation",
     name: "老式小孩",
-    desc: "老辈子很喜欢你打圈敬酒的艺术。你在长辈社交里如鱼得水。"
+    desc: "老辈子很喜欢你打圈敬酒的艺术"
   },
   {
     group: "relation",
@@ -335,7 +335,7 @@ const TRAITS = [
   {
     group: "relation",
     name: "导师心腹",
-    desc: "导师甚至会邀请你去 ta 家吃年夜饭。你是心腹，也是免费劳动力。"
+    desc: "导师甚至会邀请你去 ta 家吃年夜饭"
   },
   {
     group: "relation",
@@ -350,7 +350,7 @@ const TRAITS = [
   {
     group: "relation",
     name: "家底殷实",
-    desc: "你有读人文社科博士的底气。世界的残酷有厚厚一层缓冲垫。"
+    desc: "你有读人文社科博士的底气"
   },
   {
     group: "relation",
@@ -367,6 +367,7 @@ const MUTUALLY_EXCLUSIVE = [
   ["学术左派", "学术右派"],
   ["嫡长子", "sans-culottes"],
   ["导师心腹", "导师后脑勺"]
+  ["第一代大学生", "家底殷实"]
 ];
 
 // 最少毕业月份：防止 11 个月暴毙毕业
@@ -585,10 +586,10 @@ function applyMonthlyTraitEffects() {
  * 主线任务基础效果
  ***********************/
 const MAIN_ACTIONS = {
-  read: { name: "读文献", deltas: { san: -2, essay: 4, idea: 2, paperProgress: 0 } },
-  writeEssay: { name: "写大论文", deltas: { san: -3, essay: 8, idea: 0, paperProgress: 0 } },
-  writePaper: { name: "写小论文", deltas: { san: -4, essay: 0, idea: 0, paperProgress: 20 } },
-  relax: { name: "放松减压", deltas: { san: 6, essay: -1, idea: 1, paperProgress: -2 } }
+  read: { name: "读文献", deltas: { san: -1, essay: 4, idea: 2, paperProgress: 0 } },
+  writeEssay: { name: "写大论文", deltas: { san: -2, essay: 2, idea: 0, paperProgress: 0 } },
+  writePaper: { name: "写小论文", deltas: { san: -4, essay: 0, idea: 0, paperProgress: 5 } },
+  relax: { name: "放松减压", deltas: { san: 5, essay: -1, idea: 1, paperProgress: 0 } }
 };
 
 /***********************
@@ -596,16 +597,16 @@ const MAIN_ACTIONS = {
  * 你可以自己继续往数组里追加
  ***********************/
 const ADMIN_EVENTS = [
-  { id: "A01", title: "教务系统崩溃", desc: "你排好一天时间报销/选课，结果教务系统崩溃。", deltas: { san: -3, essay: 0, idea: 0, paperProgress: 0 }, cancelRandomMain: true },
-  { id: "A02", title: "学院大扫除", desc: "学院号召全员打扫卫生并拍照上传。", deltas: { san: -4, essay: 0, idea: 0, paperProgress: 0 } },
-  { id: "A03", title: "必修课点名", desc: "冷门课程突然严格点名，你被迫去听。", deltas: { san: -2, essay: 1, idea: 1, paperProgress: 0 } },
-  { id: "A04", title: "政治学习集中观看", desc: "统一观看线上思政课程，签到+截图。", deltas: { san: -5, essay: -1, idea: 0, paperProgress: 0 } },
-  { id: "A05", title: "期末监考/助教值班", desc: "你被安排去监考或在机房看学生交卷。", deltas: { san: -3, essay: 0, idea: 0, paperProgress: 3 } },
-  { id: "A06", title: "报销材料打回", desc: "报销材料顺序错误，被财务退回。", deltas: { san: -6, essay: 0, idea: 0, paperProgress: 0 }, cancelRandomMain: true },
-  { id: "A07", title: "校园网抽风", desc: "你计划查文献，结果校园网整个下午抽风。", deltas: { san: -3, essay: 0, idea: 0, paperProgress: 0 } },
-  { id: "A08", title: "一卡通挂失", desc: "一卡通丢了，你在窗口排队挂失、补办。", deltas: { san: -4, essay: -1, idea: 0, paperProgress: 0 } },
-  { id: "A09", title: "校医院排号", desc: "轻微感冒/胃炎，你在校医院排了半天队。", deltas: { san: -5, essay: 0, idea: 0, paperProgress: 0 }, cancelRandomMain: true },
-  { id: "A10", title: "开题/中期检查表格填写", desc: "你花一下午写“研究意义”和“预期成果”。", deltas: { san: -4, essay: 3, idea: 1, paperProgress: 0 } }
+  { id: "A01", title: "", desc: "你排好一天时间报销/选课，结果教务系统崩溃。", deltas: { san: -3, essay: 0, idea: 0, paperProgress: 0 }, cancelRandomMain: true },
+  { id: "A02", title: "", desc: "学院号召全员打扫卫生并拍照上传。", deltas: { san: -4, essay: 0, idea: 0, paperProgress: 0 } },
+  { id: "A03", title: "政治课点名", desc: "你收到消息今天政治课点名，从床上坐起来骂骂咧咧的去签到", deltas: { san: -2, essay: 1, idea: 1, paperProgress: 0 } },
+  { id: "A04", title: "党员大会", desc: "统一观看线上党员课程，签到+截图。", deltas: { san: -5, essay: -1, idea: 0, paperProgress: 0 } },
+  { id: "A05", title: "期末监考", desc: "你被安排去监考。不能玩手机，你坐在那里拔了一下午眉毛", deltas: { san: -3, essay: 0, idea: 0, paperProgress: 3 } },
+  { id: "A06", title: "非专家不得乘坐商务舱", desc: "单据退回，你去取，原来是没有说明舱位信息。", deltas: { san: -6, essay: 0, idea: 0, paperProgress: 0 }, cancelRandomMain: true },
+  { id: "A07", title: "internal serve error", desc: "你计划查文献，结果校园网整个下午抽风。", deltas: { san: -3, essay: 0, idea: 0, paperProgress: 0 } },
+  { id: "A08", title: "一卡通丢了", desc: "你没吃上午饭，也没办法充电瓶车，也错过了热水时间。", deltas: { san: -4, essay: 0, idea: 0, paperProgress: 0 } },
+  { id: "A09", title: "", desc: "你感冒了，但大家也都感冒了。你在校医院排了半天队。", deltas: { san: -5, essay: 0, idea: 0, paperProgress: 0 }, cancelRandomMain: true },
+  { id: "A10", title: "", desc: "”。", deltas: { san: -4, essay: 3, idea: 1, paperProgress: 0 } }
 ];
 
 const DISS_EVENTS = [
