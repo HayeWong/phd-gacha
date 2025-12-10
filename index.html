@@ -2,968 +2,1177 @@
 <html lang="zh-CN">
 <head>
   <meta charset="UTF-8" />
-  <title>博士日常扭蛋机 v1.0</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>人文社科博士生生存模拟器</title>
   <style>
-    * { box-sizing: border-box; }
-
     body {
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
       margin: 0;
-      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
-      background: #020617;
-      color: #e5e7eb;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      min-height: 100vh;
+      padding: 0;
+      background: #111;
+      color: #eee;
     }
-
-    .app {
-      width: 100%;
-      max-width: 780px;
-      padding: 24px 20px 18px;
-      background: rgba(15, 23, 42, 0.96);
-      border-radius: 18px;
-      border: 1px solid rgba(148, 163, 184, 0.4);
-      box-shadow: 0 20px 50px rgba(0, 0, 0, 0.6);
+    .container {
+      max-width: 1100px;
+      margin: 0 auto;
+      padding: 20px;
     }
-
-    h1 {
-      margin: 0 0 8px;
-      font-size: 24px;
+    h1, h2, h3 {
+      margin-top: 0.4em;
+      margin-bottom: 0.4em;
     }
-
-    .subtitle {
-      margin: 0 0 20px;
-      font-size: 13px;
-      color: #9ca3af;
-    }
-
-    .status-row {
-      display: flex;
-      flex-direction: column;
-      gap: 8px;
+    .card {
+      background: #1b1b1b;
+      border-radius: 8px;
+      padding: 16px;
       margin-bottom: 16px;
+      border: 1px solid #333;
     }
-
-    .status-item {
-      font-size: 12px;
-    }
-
-    .status-label {
+    .flex {
       display: flex;
-      justify-content: space-between;
-      margin-bottom: 2px;
-    }
-
-    .status-name {
-      color: #9ca3af;
-    }
-
-    .status-value {
-      color: #e5e7eb;
-    }
-
-    .bar {
-      position: relative;
-      width: 100%;
-      height: 8px;
-      border-radius: 999px;
-      background: #020617;
-      overflow: hidden;
-      border: 1px solid #111827;
-    }
-
-    .bar-fill {
-      position: absolute;
-      left: 0;
-      top: 0;
-      bottom: 0;
-      width: 50%;
-      border-radius: 999px;
-      background: linear-gradient(90deg, #22c55e, #4ade80);
-      transition: width 0.25s ease;
-    }
-
-    .bar-fill.stress {
-      background: linear-gradient(90deg, #f97316, #ef4444);
-    }
-
-    .bar-fill.thesis {
-      background: linear-gradient(90deg, #38bdf8, #6366f1);
-    }
-
-    .bar-fill.paper {
-      background: linear-gradient(90deg, #14b8a6, #22d3ee);
-    }
-
-    .bar-fill.death {
-      background: linear-gradient(90deg, #a855f7, #ec4899);
-    }
-
-    .controls {
-      margin-bottom: 18px;
-      display: flex;
-      align-items: center;
-      gap: 12px;
+      gap: 16px;
       flex-wrap: wrap;
     }
-
+    .col {
+      flex: 1 1 320px;
+    }
+    .trait-item {
+      border-radius: 6px;
+      padding: 6px 8px;
+      margin-bottom: 6px;
+      border: 1px solid #333;
+      background: #181818;
+    }
+    .trait-title {
+      font-weight: 600;
+      font-size: 14px;
+    }
+    .trait-desc {
+      font-size: 12px;
+      color: #aaa;
+      margin-top: 2px;
+    }
+    label {
+      cursor: pointer;
+    }
+    input[type="checkbox"] {
+      margin-right: 6px;
+    }
     button {
-      padding: 10px 18px;
-      border-radius: 999px;
+      background: #4b8bff;
       border: none;
+      color: #fff;
+      padding: 8px 16px;
+      border-radius: 4px;
       cursor: pointer;
       font-size: 14px;
-      font-weight: 500;
-      background: #4f46e5;
-      color: white;
-      white-space: nowrap;
+      margin-top: 8px;
     }
-
-    button[disabled] {
-      opacity: 0.6;
+    button:disabled {
+      background: #555;
       cursor: not-allowed;
     }
-
-    button:hover:not([disabled]) {
-      filter: brightness(1.05);
+    .status-grid {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 8px;
     }
-
-    button:active:not([disabled]) {
-      transform: translateY(1px);
-    }
-
-    .counter {
-      font-size: 12px;
-      color: #9ca3af;
-    }
-
-    .event-box {
-      margin-top: 10px;
-      padding: 16px 14px;
-      border-radius: 14px;
-      background: #020617;
-      border: 1px solid #374151;
-      min-height: 80px;
-    }
-
-    .event-title {
-      font-size: 13px;
-      font-weight: 600;
-      color: #a5b4fc;
-      margin-bottom: 6px;
-      letter-spacing: 0.04em;
-      text-transform: uppercase;
-    }
-
-    .event-text {
+    .status-item {
+      background: #222;
+      padding: 8px;
+      border-radius: 4px;
+      text-align: center;
       font-size: 14px;
-      line-height: 1.6;
-      white-space: pre-line;
     }
-
+    .status-item div:first-child {
+      font-size: 12px;
+      color: #aaa;
+      margin-bottom: 4px;
+    }
+    .status-item div:last-child {
+      font-size: 16px;
+      font-weight: 600;
+    }
+    .log {
+      max-height: 360px;
+      overflow-y: auto;
+      font-size: 13px;
+      line-height: 1.4;
+      background: #101010;
+      border-radius: 4px;
+      padding: 8px;
+      border: 1px solid #333;
+      white-space: pre-wrap;
+    }
+    .log-entry {
+      margin-bottom: 8px;
+      border-bottom: 1px dashed #333;
+      padding-bottom: 4px;
+    }
+    .ending {
+      white-space: pre-wrap;
+      background: #1b1b1b;
+      padding: 12px;
+      border-radius: 8px;
+      border: 1px solid #666;
+    }
     .hidden {
       display: none;
     }
-
-    .ending-box {
-      margin-top: 16px;
-      padding: 14px 14px 12px;
-      border-radius: 12px;
-      background: #111827;
-      border: 1px solid #4b5563;
-      font-size: 13px;
-    }
-
-    .ending-title {
-      font-weight: 600;
-      margin: 0 0 6px;
-      color: #fbbf24;
-    }
-
-    footer {
-      margin-top: 18px;
+    .pill {
+      display: inline-block;
+      padding: 2px 6px;
+      border-radius: 999px;
       font-size: 11px;
-      color: #6b7280;
-      text-align: right;
+      border: 1px solid #555;
+      margin: 2px 4px 2px 0;
+    }
+    .muted {
+      color: #aaa;
+      font-size: 12px;
+    }
+    .tag {
+      display: inline-block;
+      padding: 2px 6px;
+      border-radius: 4px;
+      font-size: 11px;
+      background: #333;
+      margin-right: 4px;
     }
   </style>
 </head>
 <body>
-  <div class="app">
-    <h1>博士日常扭蛋机 v1.0</h1>
-    <p class="subtitle">
-      你可以开始读博了。
+<div class="container">
+  <h1>人文社科博士生生存模拟器</h1>
+
+  <!-- 初始配置界面 -->
+  <div id="setup-screen" class="card">
+    <h2>选择初始特质（每栏恰好选 2 个，互斥强制生效）</h2>
+    <div class="flex">
+      <div class="col">
+        <h3>身体</h3>
+        <div id="body-traits"></div>
+      </div>
+      <div class="col">
+        <h3>学术</h3>
+        <div id="academic-traits"></div>
+      </div>
+      <div class="col">
+        <h3>关系</h3>
+        <div id="relation-traits"></div>
+      </div>
+    </div>
+    <p class="muted">
+      互斥规则：<br>
+      ・「鼠鼠我呀」 ↔ 「超绝钝感力」<br>
+      ・「事已至此先吃饭吧」 ↔ 「卷王」<br>
+      ・「鸡头」 ↔ 「凤尾」<br>
+      ・「学术左派」 ↔ 「学术右派」<br>
+      ・「嫡长子」 ↔ 「sans-culottes」<br>
+      ・「导师心腹」 ↔ 「导师后脑勺」
     </p>
-
-    <div class="status-row">
-      <div class="status-item">
-        <div class="status-label">
-          <span class="status-name">SAN 值</span>
-          <span class="status-value" id="sanValue">60</span>
-        </div>
-        <div class="bar">
-          <div class="bar-fill" id="sanBar"></div>
-        </div>
-      </div>
-
-      <div class="status-item">
-        <div class="status-label">
-          <span class="status-name">压力值</span>
-          <span class="status-value" id="stressValue">20</span>
-        </div>
-        <div class="bar">
-          <div class="bar-fill stress" id="stressBar"></div>
-        </div>
-      </div>
-
-      <div class="status-item">
-        <div class="status-label">
-          <span class="status-name">大论文进度</span>
-          <span class="status-value" id="thesisValue">0</span>
-        </div>
-        <div class="bar">
-          <div class="bar-fill thesis" id="thesisBar"></div>
-        </div>
-      </div>
-
-      <div class="status-item">
-        <div class="status-label">
-          <span class="status-name">小论文接收</span>
-          <span class="status-value" id="paperValue">0 篇</span>
-        </div>
-        <div class="bar">
-          <div class="bar-fill paper" id="paperBar"></div>
-        </div>
-      </div>
-
-      <div class="status-item">
-        <div class="status-label">
-          <span class="status-name">“读博读的想死”</span>
-          <span class="status-value" id="deathValue">0</span>
-        </div>
-        <div class="bar">
-          <div class="bar-fill death" id="deathBar"></div>
-        </div>
-      </div>
-    </div>
-
-    <div class="controls">
-      <button id="drawBtn">抽取今日事件</button>
-      <div class="counter">
-        第 <span id="day">1</span> 天 · 已抽 <span id="count">0</span> 次
-      </div>
-    </div>
-
-    <div id="eventBox" class="event-box hidden">
-      <div class="event-title">今日事件</div>
-      <p id="eventText" class="event-text"></p>
-    </div>
-
-    <div id="endingBox" class="ending-box hidden">
-      <p class="ending-title" id="endingTitle"></p>
-      <p id="endingText"></p>
-      <button id="restartBtn">重新开始本轮博士人生</button>
-    </div>
-
-    <footer>
-      如有雷同，纯属博士生活的样本方差不大。
-    </footer>
+    <button id="start-game-btn">开始读博</button>
+    <div id="setup-error" style="color:#ff6b6b;margin-top:8px;"></div>
   </div>
 
-  <script>
-    // 初始状态
-    const initialState = {
-      san: 60,
-      stress: 20,
-      thesis: 0,
-      smallPapers: 0,
-      deathWish: 0,
-      day: 1,
-      draws: 0,
-      ended: false
+  <!-- 游戏界面 -->
+  <div id="game-screen" class="hidden">
+    <div class="card">
+      <h2>当前状态</h2>
+      <div class="status-grid">
+        <div class="status-item"><div>月份</div><div id="stat-month">1</div></div>
+        <div class="status-item"><div>san</div><div id="stat-san">100</div></div>
+        <div class="status-item"><div>大论文进度 essay</div><div id="stat-essay">0</div></div>
+        <div class="status-item"><div>idea</div><div id="stat-idea">0</div></div>
+        <div class="status-item"><div>小论文写作进度</div><div id="stat-paper-progress">0</div></div>
+        <div class="status-item"><div>已接收小论文</div><div id="stat-paper-accepted">0</div></div>
+      </div>
+      <div style="margin-top:8px;">
+        <span class="pill" id="chosen-body-pill"></span>
+        <span class="pill" id="chosen-academic-pill"></span>
+        <span class="pill" id="chosen-relation-pill"></span>
+      </div>
+      <p class="muted" style="margin-top:4px;">
+        每次点击「执行本月」，都会进入下一月：先结算本月主线任务，然后抽取一个随机事件，最后检查是否触发结局。
+      </p>
+    </div>
+
+    <div class="card">
+      <h2>本月主线任务（必须选 2 项）</h2>
+      <label><input type="checkbox" name="main-action" value="read"> 读文献</label><br>
+      <label><input type="checkbox" name="main-action" value="writeEssay"> 写大论文</label><br>
+      <label><input type="checkbox" name="main-action" value="writePaper"> 写小论文</label><br>
+      <label><input type="checkbox" name="main-action" value="relax"> 放松减压</label><br>
+      <button id="next-month-btn">执行本月（进入下一月）</button>
+      <div id="action-error" style="color:#ff6b6b;margin-top:8px;"></div>
+    </div>
+
+    <div class="card">
+      <h2>本月随机事件</h2>
+      <div id="current-event-title"></div>
+      <div id="current-event-desc" style="margin-top:4px;"></div>
+      <div id="current-delta" style="margin-top:8px;font-size:13px;color:#ccc;"></div>
+    </div>
+
+    <div class="card">
+      <h2>日志</h2>
+      <div id="log" class="log"></div>
+    </div>
+
+    <div id="ending-card" class="card hidden">
+      <h2>结局</h2>
+      <div id="ending-content" class="ending"></div>
+    </div>
+  </div>
+</div>
+
+<script>
+/***********************
+ * 基础工具
+ ***********************/
+function clamp(value, min, max) {
+  return Math.max(min, Math.min(max, value));
+}
+
+/***********************
+ * 特质定义（含介绍文案）
+ ***********************/
+const TRAITS = [
+  // 身体
+  {
+    group: "body",
+    name: "事已至此先吃饭吧",
+    desc: "你大便通畅，睡眠良好，食欲旺盛，事不关己。所有情绪波动都像蒙了一层保鲜膜。"
+  },
+  {
+    group: "body",
+    name: "钢铁般的乐观主义者",
+    desc: "你真心觉得“总会有办法”。不太容易彻底崩溃，也不太容易真正认真起来。"
+  },
+  {
+    group: "body",
+    name: "完美主义",
+    desc: "对“差不多”“还没好”都过敏。你会写得更干净，也会更频繁想删库跑路。"
+  },
+  {
+    group: "body",
+    name: "体育健将",
+    desc: "每周会抽出八天时间强身健体。躯体像是你唯一可信的生产资料。"
+  },
+  {
+    group: "body",
+    name: "鼠鼠我呀",
+    desc: "超绝敏感鼠鼠一枚，需要注意精神健康。但你对结构和文本也同样敏感，初始 idea 更多。"
+  },
+  {
+    group: "body",
+    name: "超绝钝感力",
+    desc: "不太容易遇到精神危机，对选题也通常没什么想法。世界像是加了一层消音棉。"
+  },
+  {
+    group: "body",
+    name: "咖啡是一种人类增强",
+    desc: "习惯用各种“化学手段”调整状态：尼古丁、乙醇、咖啡因、辅酶、褪黑素……你靠配方维持运转。"
+  },
+  {
+    group: "body",
+    name: "章鱼哥",
+    desc: "你喜欢很多事情。不管是学术，还是生活，你总有很多触须，永远在分心。"
+  },
+
+  // 学术
+  {
+    group: "academic",
+    name: "卷王",
+    desc: "卷死同行累死自己，主打一个性价比。写得多，拒稿也多。"
+  },
+  {
+    group: "academic",
+    name: "嫡长子",
+    desc: "还能多说什么呢，你从本科就跟着你的大牛博导做项目了。资源与剥削并存。"
+  },
+  {
+    group: "academic",
+    name: "sans-culottes",
+    desc: "你的导师是青椒，但你查过 ta 的学术履历，并且憧憬着自己在 ta 那个年纪也能这么能写。"
+  },
+  {
+    group: "academic",
+    name: "学术左派",
+    desc: "你做应用导向的前沿课题和最 fancy 最 posh 的话题，时刻盯着现实世界的伤口。"
+  },
+  {
+    group: "academic",
+    name: "学术右派",
+    desc: "你做思想史 armchair，所有问题的答案都是“先把概念澄清一下”。"
+  },
+  {
+    group: "academic",
+    name: "鸡头",
+    desc: "你的组平平无奇，但你觉得你在组里最厉害，导师一定最看重你。"
+  },
+  {
+    group: "academic",
+    name: "凤尾",
+    desc: "你的组异常强悍，但你永远是合照最边缘的那张脸。资源多，存在感薄。"
+  },
+
+  // 关系
+  {
+    group: "relation",
+    name: "活人感",
+    desc: "团队中的每个人都喜欢你。你是组里的情绪稳定器和润滑剂。"
+  },
+  {
+    group: "relation",
+    name: "老式小孩",
+    desc: "老辈子很喜欢你打圈敬酒的艺术。你在长辈社交里如鱼得水。"
+  },
+  {
+    group: "relation",
+    name: "隐形人",
+    desc: "好处是你没有朋友，坏处是你没有朋友。没人打扰你写作，也没人知道你在写。"
+  },
+  {
+    group: "relation",
+    name: "导师心腹",
+    desc: "导师甚至会邀请你去 ta 家吃年夜饭。你是心腹，也是免费劳动力。"
+  },
+  {
+    group: "relation",
+    name: "导师后脑勺",
+    desc: "导师忘记你的存在，你只在组会上看到 ta 的后脑勺。"
+  },
+  {
+    group: "relation",
+    name: "朋友圈策展人",
+    desc: "精装朋友圈，草稿箱里是“感谢 x 老师邀请和 x 大学的精心接待”“拙作见刊，敬请老师同侪雅正”钗于奁内待时飞，但其实发的最多的是九宫格旅游照配文“人生是一万次的春和景明”。"
+  },
+  {
+    group: "relation",
+    name: "家底殷实",
+    desc: "你有读人文社科博士的底气。世界的残酷有厚厚一层缓冲垫。"
+  },
+  {
+    group: "relation",
+    name: "第一代大学生",
+    desc: "你没有家庭托举，只是在意识到世界的精明和残酷前就拥抱了这个美丽的专业。"
+  }
+];
+
+// 互斥特质
+const MUTUALLY_EXCLUSIVE = [
+  ["鼠鼠我呀", "超绝钝感力"],
+  ["事已至此先吃饭吧", "卷王"],
+  ["鸡头", "凤尾"],
+  ["学术左派", "学术右派"],
+  ["嫡长子", "sans-culottes"],
+  ["导师心腹", "导师后脑勺"]
+];
+
+// 最少毕业月份：防止 11 个月暴毙毕业
+const MIN_GRAD_MONTH = 36;
+
+/***********************
+ * 游戏状态
+ ***********************/
+const state = {
+  month: 1,
+  san: 100,
+  essay: 0,
+  idea: 0,
+  paperProgress: 0,
+  paperAccepted: 0,
+  traits: {
+    body: [],
+    academic: [],
+    relation: []
+  },
+  gameOver: false
+};
+
+function hasTrait(name) {
+  return state.traits.body.includes(name) ||
+         state.traits.academic.includes(name) ||
+         state.traits.relation.includes(name);
+}
+
+/***********************
+ * 特质数值效果
+ ***********************/
+const traitEffects = {
+  "事已至此先吃饭吧": {
+    modifyDeltas(d) {
+      d.san *= 0.6;
+      d.essay *= 0.9;
+      d.paperProgress *= 0.9;
+    }
+  },
+  "钢铁般的乐观主义者": {
+    init(s) {
+      s.san += 15;
+    },
+    modifyDeltas(d) {
+      if (d.san < 0) d.san *= 0.8;
+      else if (d.san > 0) d.san *= 0.9;
+      if (d.idea > 0) d.idea *= 0.9;
+    }
+  },
+  "完美主义": {
+    modifyDeltas(d) {
+      if (d.essay > 0) d.essay *= 1.2;
+      if (d.paperProgress > 0) d.paperProgress *= 1.1;
+      if (d.san < 0) d.san *= 1.3;
+      else if (d.san > 0) d.san *= 0.8;
+    },
+    monthly(s) { s.san -= 1; }
+  },
+  "体育健将": {
+    modifyDeltas(d) {
+      if (d.san < 0) d.san *= 0.9;
+    },
+    monthly(s) { s.san += 2; }
+  },
+  "鼠鼠我呀": {
+    init(s) { s.idea += 3; },
+    modifyDeltas(d) {
+      if (d.san < 0) d.san *= 1.4;
+      if (d.san > 0) d.san *= 1.1;
+      if (d.paperProgress > 0) d.paperProgress *= 1.05;
+      if (d.idea > 0) d.idea *= 1.3;
+    }
+  },
+  "超绝钝感力": {
+    init(s) { s.idea = Math.max(0, s.idea - 1); },
+    modifyDeltas(d) {
+      if (d.san < 0) d.san *= 0.7;
+      if (d.san > 0) d.san *= 0.9;
+      if (d.idea > 0) d.idea *= 0.7;
+    }
+  },
+  "咖啡是一种人类增强": {
+    modifyDeltas(d) {
+      if (d.essay > 0) d.essay *= 1.15;
+      if (d.paperProgress > 0) d.paperProgress *= 1.15;
+    },
+    monthly(s) { s.san -= 2; }
+  },
+  "章鱼哥": {
+    modifyDeltas(d) {
+      d.essay *= 0.9;
+      d.paperProgress *= 0.9;
+      if (d.san > 0) d.san *= 1.1;
+    }
+  },
+  "卷王": {
+    modifyDeltas(d) {
+      if (d.essay > 0) d.essay *= 1.3;
+      if (d.paperProgress > 0) d.paperProgress *= 1.3;
+      if (d.san < 0) d.san *= 1.2;
+    }
+  },
+  "嫡长子": {
+    modifyDeltas(d) {
+      if (d.paperProgress > 0) d.paperProgress *= 1.3;
+    }
+  },
+  "sans-culottes": {
+    init(s) { s.essay += 5; },
+    modifyDeltas(d) {
+      if (d.essay > 0) d.essay *= 1.1;
+      if (d.paperProgress > 0) d.paperProgress *= 1.1;
+      if (d.san < 0) d.san *= 1.1;
+    }
+  },
+  "学术左派": {
+    modifyDeltas(d) {
+      if (d.paperProgress > 0) d.paperProgress *= 1.2;
+      if (d.san < 0) d.san *= 1.1;
+    }
+  },
+  "学术右派": {
+    modifyDeltas(d) {
+      if (d.essay > 0) d.essay *= 1.15;
+      if (d.paperProgress > 0) d.paperProgress *= 0.9;
+      d.san *= 0.9;
+    }
+  },
+  "鸡头": {
+    modifyDeltas(d) {
+      if (d.paperProgress > 0) d.paperProgress *= 1.2;
+    }
+  },
+  "凤尾": {
+    modifyDeltas(d) {
+      if (d.paperProgress > 0) d.paperProgress *= 1.25;
+      if (d.essay > 0) d.essay *= 0.9;
+    }
+  },
+  "活人感": {
+    modifyDeltas(d) {
+      if (d.san > 0) d.san *= 1.1;
+    }
+  },
+  "老式小孩": {
+    modifyDeltas(d) {
+      d.san *= 1.05;
+    }
+  },
+  "隐形人": {
+    monthly(s) { s.san -= 1; }
+  },
+  "导师心腹": {
+    modifyDeltas(d) {
+      if (d.paperProgress > 0) d.paperProgress *= 1.3;
+    }
+  },
+  "导师后脑勺": {
+    modifyDeltas(d) {
+      if (d.essay > 0) d.essay *= 1.1;
+      if (d.paperProgress > 0) d.paperProgress *= 0.9;
+    }
+  },
+  "朋友圈策展人": {
+    modifyDeltas(d) {
+      if (d.san > 0) d.san *= 1.1;
+      d.essay *= 0.95;
+      d.paperProgress *= 0.95;
+    }
+  },
+  "家底殷实": {
+    init(s) { s.san += 10; },
+    monthly(s) { s.san += 1; },
+    modifyDeltas(d) {
+      if (d.san < 0) d.san *= 0.85;
+      if (d.essay > 0) d.essay *= 0.95;
+      if (d.paperProgress > 0) d.paperProgress *= 0.9;
+    }
+  },
+  "第一代大学生": {
+    init(s) { s.san -= 10; },
+    modifyDeltas(d) {
+      if (d.essay > 0) d.essay *= 1.1;
+      if (d.paperProgress > 0) d.paperProgress *= 1.1;
+      if (d.san < 0) d.san *= 1.2;
+      if (d.san > 0) d.san *= 1.1;
+    }
+  }
+};
+
+function applyTraitDeltas(d) {
+  for (const group of Object.values(state.traits)) {
+    for (const t of group) {
+      const eff = traitEffects[t];
+      if (eff && eff.modifyDeltas) eff.modifyDeltas(d, state);
+    }
+  }
+  // 咖啡低 san 下的额外惩罚
+  if (hasTrait("咖啡是一种人类增强") && state.san <= 40) {
+    if (d.san < 0) d.san *= 1.4;
+    if (d.san > 0) d.san *= 0.9;
+  }
+}
+
+function applyMonthlyTraitEffects() {
+  for (const group of Object.values(state.traits)) {
+    for (const t of group) {
+      const eff = traitEffects[t];
+      if (eff && eff.monthly) eff.monthly(state);
+    }
+  }
+}
+
+/***********************
+ * 主线任务基础效果
+ ***********************/
+const MAIN_ACTIONS = {
+  read: { name: "读文献", deltas: { san: -2, essay: 4, idea: 2, paperProgress: 0 } },
+  writeEssay: { name: "写大论文", deltas: { san: -3, essay: 8, idea: 0, paperProgress: 0 } },
+  writePaper: { name: "写小论文", deltas: { san: -4, essay: 0, idea: 0, paperProgress: 20 } },
+  relax: { name: "放松减压", deltas: { san: 6, essay: -1, idea: 1, paperProgress: -2 } }
+};
+
+/***********************
+ * 随机事件（简化版，每类 10 个）
+ * 你可以自己继续往数组里追加
+ ***********************/
+const ADMIN_EVENTS = [
+  { id: "A01", title: "教务系统崩溃", desc: "你排好一天时间报销/选课，结果教务系统崩溃。", deltas: { san: -3, essay: 0, idea: 0, paperProgress: 0 }, cancelRandomMain: true },
+  { id: "A02", title: "学院大扫除", desc: "学院号召全员打扫卫生并拍照上传。", deltas: { san: -4, essay: 0, idea: 0, paperProgress: 0 } },
+  { id: "A03", title: "必修课点名", desc: "冷门课程突然严格点名，你被迫去听。", deltas: { san: -2, essay: 1, idea: 1, paperProgress: 0 } },
+  { id: "A04", title: "政治学习集中观看", desc: "统一观看线上思政课程，签到+截图。", deltas: { san: -5, essay: -1, idea: 0, paperProgress: 0 } },
+  { id: "A05", title: "期末监考/助教值班", desc: "你被安排去监考或在机房看学生交卷。", deltas: { san: -3, essay: 0, idea: 0, paperProgress: 3 } },
+  { id: "A06", title: "报销材料打回", desc: "报销材料顺序错误，被财务退回。", deltas: { san: -6, essay: 0, idea: 0, paperProgress: 0 }, cancelRandomMain: true },
+  { id: "A07", title: "校园网抽风", desc: "你计划查文献，结果校园网整个下午抽风。", deltas: { san: -3, essay: 0, idea: 0, paperProgress: 0 } },
+  { id: "A08", title: "一卡通挂失", desc: "一卡通丢了，你在窗口排队挂失、补办。", deltas: { san: -4, essay: -1, idea: 0, paperProgress: 0 } },
+  { id: "A09", title: "校医院排号", desc: "轻微感冒/胃炎，你在校医院排了半天队。", deltas: { san: -5, essay: 0, idea: 0, paperProgress: 0 }, cancelRandomMain: true },
+  { id: "A10", title: "开题/中期检查表格填写", desc: "你花一下午写“研究意义”和“预期成果”。", deltas: { san: -4, essay: 3, idea: 1, paperProgress: 0 } }
+];
+
+const DISS_EVENTS = [
+  { id: "B01", title: "读到一篇结构性综述", desc: "你找到一篇写得很清晰的综述，感觉世界暂时有点秩序。", deltas: { san: 1, essay: 4, idea: 2, paperProgress: 0 } },
+  { id: "B02", title: "读文献读到睡着", desc: "你翻着翻着睡着了，醒来发现只记得一半。", deltas: { san: 2, essay: 1, idea: 0, paperProgress: 0 } },
+  { id: "B03", title: "推翻原有提纲", desc: "你意识到原来的提纲本质上无法支撑论证，决定重写。", deltas: { san: -6, essay: -5, idea: 3, paperProgress: 0 } },
+  { id: "B04", title: "和导师讨论大纲", desc: "你和导师认真谈了一次整篇结构。", deltas: { san: 0, essay: 5, idea: 1, paperProgress: 0 } },
+  { id: "B05", title: "一口气写完一个小节", desc: "你短暂进入心流状态，把一个棘手小节写顺了。", deltas: { san: -2, essay: 6, idea: 0, paperProgress: 0 } },
+  { id: "B06", title: "卡在一个概念定义上", desc: "你花整整一天纠结“到底该怎么翻译/界定这个概念”。", deltas: { san: -4, essay: 0, idea: 2, paperProgress: 0 } },
+  { id: "B07", title: "发现一条漂亮的主线论证", desc: "你突然意识到可以用一条新的主线串起全篇。", deltas: { san: 3, essay: 7, idea: 3, paperProgress: 0 } },
+  { id: "B08", title: "改引用+格式一下午", desc: "你认真统一了引用格式，虽然看上去“没写东西”。", deltas: { san: -3, essay: 2, idea: 0, paperProgress: 0 } },
+  { id: "B09", title: "在读书会上被一个问题问懵", desc: "同门问了一个你一时答不上来的问题。", deltas: { san: -3, essay: 2, idea: 3, paperProgress: 0 } },
+  { id: "B10", title: "短暂的写作高峰", desc: "某一个下午你写什么都顺，连自己都怀疑是不是喝多了咖啡。", deltas: { san: 4, essay: 10, idea: 1, paperProgress: 0 } }
+];
+
+const PAPER_EVENTS = [
+  { id: "C01", title: "同门拉你合写一篇会议论文", desc: "你被拉进了一个看上去还算靠谱的合作。", deltas: { san: -2, essay: 0, idea: 1, paperProgress: 12 } },
+  { id: "C02", title: "自己起了一个小论文 idea", desc: "你发现大论文里有一段可以拆成独立小稿。", deltas: { san: 1, essay: 0, idea: 2, paperProgress: 5 } },
+  { id: "C03", title: "投稿被 desk reject", desc: "编辑连外审都没给你送，就礼貌地退回来了。", deltas: { san: -8, essay: 0, idea: 1, paperProgress: -5 } },
+  { id: "C04", title: "收到“修改后再投”", desc: "审稿人给了一些严厉但不算恶意的意见。", deltas: { san: -2, essay: 0, idea: 1, paperProgress: 10 } },
+  { id: "C05", title: "盲审匿名评语极其刻薄", desc: "你花了一晚上在心里回怼对方，但还是改了。", deltas: { san: -10, essay: 0, idea: 1, paperProgress: 3 } },
+  { id: "C06", title: "在小刊顺利接收一篇", desc: "你收到了那封“we are pleased to accept”。", deltas: { san: 6, essay: 0, idea: 0, paperProgress: 15 }, acceptedDirect: true },
+  { id: "C07", title: "为会议准备报告", desc: "你把一篇半成品小论文赶成了可以讲的版本。", deltas: { san: -3, essay: 0, idea: 2, paperProgress: 8 } },
+  { id: "C08", title: "大修修改期超时", desc: "你拖到修改期限过去，只能重新投别的刊物。", deltas: { san: -6, essay: 0, idea: 1, paperProgress: -10 } },
+  { id: "C09", title: "帮导师改一篇你不感兴趣的稿子", desc: "你帮忙改语言和格式，顺手学了一些套路。", deltas: { san: -3, essay: 0, idea: 1, paperProgress: 7 } },
+  { id: "C10", title: "做了一次文献综述草稿", desc: "你为一个主题写了一份比较扎实的综述。", deltas: { san: -2, essay: 0, idea: 3, paperProgress: 10 } }
+];
+
+const SOCIAL_EVENTS = [
+  { id: "D01", title: "和同门一起吐槽学院", desc: "你们坐在楼梯间，对着整个制度一通输出。", deltas: { san: 4, essay: 0, idea: 1, paperProgress: 0 } },
+  { id: "D02", title: "被迫参加导师+师门聚餐", desc: "你在一桌菜之间反复调整自己的脸色。", deltas: { san: 0, essay: 1, idea: 1, paperProgress: 0 } },
+  { id: "D03", title: "和本科老朋友长电话", desc: "你向一个不在学术圈的人倾倒你的焦虑。", deltas: { san: 6, essay: -2, idea: 0, paperProgress: 0 } },
+  { id: "D04", title: "室友通宵打游戏影响你睡觉", desc: "你戴着耳塞蜷缩在被窝里，第二天像行尸走肉。", deltas: { san: -5, essay: 0, idea: 0, paperProgress: 0 } },
+  { id: "D05", title: "朋友圈刷到别人获奖/大刊", desc: "你看着那条推送反复点开又关掉。", deltas: { san: -6, essay: 1, idea: 0, paperProgress: 1 } },
+  { id: "D06", title: "指导本科生/带 RA", desc: "你第一次以“老师”的身份讲话。", deltas: { san: 2, essay: 0, idea: 2, paperProgress: 3 } },
+  { id: "D07", title: "组会上被表扬", desc: "导师罕见地说了一句“这部分做得不错”。", deltas: { san: 5, essay: 2, idea: 1, paperProgress: 1 } },
+  { id: "D08", title: "组会上被当众批评", desc: "你在 PPT 前面僵住，只能点头说“我回去再改”。", deltas: { san: -8, essay: -1, idea: 2, paperProgress: 0 } },
+  { id: "D09", title: "和师弟师妹一起吃夜宵", desc: "你一边劝他们不要读博，一边教他们怎么读博。", deltas: { san: 4, essay: 0, idea: 1, paperProgress: 0 } },
+  { id: "D10", title: "和完全不相关圈子的朋友聚会", desc: "几个小时没有人提学术这个词。", deltas: { san: 6, essay: -1, idea: 0, paperProgress: 0 } }
+];
+
+const RELAX_EVENTS = [
+  { id: "E01", title: "刷剧一整天", desc: "你把一部剧从第一集看到大结局。", deltas: { san: 6, essay: -3, idea: 0, paperProgress: -3 } },
+  { id: "E02", title: "在家大睡一整天", desc: "你醒来的时候已经天黑了。", deltas: { san: 7, essay: -2, idea: 0, paperProgress: -2 } },
+  { id: "E03", title: "去运动/跑步", desc: "你出了一身汗，短暂地相信躯体还能救你。", deltas: { san: 5, essay: 0, idea: 0, paperProgress: 0 } },
+  { id: "E04", title: "去咖啡馆发呆", desc: "你点了一杯喝不完的美式，看了一下午窗外。", deltas: { san: 4, essay: 1, idea: 2, paperProgress: 0 } },
+  { id: "E05", title: "周末短途旅行", desc: "你坐高铁到另一个城市，什么都没干，只是走路。", deltas: { san: 8, essay: -3, idea: 2, paperProgress: -3 } },
+  { id: "E06", title: "在图书馆看闲书", desc: "你看了几本和专业完全无关的书。", deltas: { san: 4, essay: -1, idea: 2, paperProgress: 0 } },
+  { id: "E07", title: "写私人日记", desc: "你把这几个月的崩溃写成一大段流水账。", deltas: { san: 5, essay: 0, idea: 1, paperProgress: 0 } },
+  { id: "E08", title: "去看展览/博物馆", desc: "你在展览里绕来绕去，被几个作品击中。", deltas: { san: 4, essay: 0, idea: 2, paperProgress: 0 } },
+  { id: "E09", title: "完全放弃本月所有学术计划", desc: "你决定本月什么也不写，只活着。", deltas: { san: 8, essay: -2, idea: 0, paperProgress: -2 }, cancelAllMain: true },
+  { id: "E10", title: "理发+换造型", desc: "你看着镜子里的人，短暂地觉得“还行”。", deltas: { san: 4, essay: 0, idea: 0, paperProgress: 0 } }
+];
+
+function drawRandomEvent() {
+  const cat = Math.floor(Math.random() * 5);
+  let pool;
+  if (cat === 0) pool = ADMIN_EVENTS;
+  else if (cat === 1) pool = DISS_EVENTS;
+  else if (cat === 2) pool = PAPER_EVENTS;
+  else if (cat === 3) pool = SOCIAL_EVENTS;
+  else pool = RELAX_EVENTS;
+  return pool[Math.floor(Math.random() * pool.length)];
+}
+
+/***********************
+ * 终局判定（按照你的判定表）
+ ***********************/
+function determineEnding() {
+  const { san, essay, month } = state;
+  const p = state.paperAccepted;
+
+  // 1.x san 崩溃线
+  if (san <= 0) {
+    if (hasTrait("鼠鼠我呀")) {
+      return {
+        id: "1.2",
+        title: "我们以为那是雪花",
+        text:
+"你读博读的想死，你开始认真考虑退出目前的训练环境。你不说你想死，你说“遇到了存在主义危机”；你不说世界是个大粪坑，你说“欢迎来到实在这个大荒漠”；你不说割手改花刀，你说你在进行激进努力，“拼死回到肉体这个实在界”。于是你从光华楼上跃下，比纸张还轻，比墨水还淡。你引以为傲的读过的一万本书，现在只是一滩红红白白。"
+      };
+    }
+    return {
+      id: "1.1",
+      title: "宛平南路那块我熟",
+      text:
+"任何一句“要不先休学调整一下状态”听起来都不再是玩笑。你在宛平南路600号过上了梦寐以求的衣食无忧的日子，当然是家里帮你出的钱。你生活很规律，不再吃外卖，吃清淡易消化的病号饭；你也不熬夜，因为精神病院晚上9点熄灯。你依稀知道自己之前读过个博士，但是不再发愁任何事情，因为你经受过无抽搐电休克疗法治疗后什么都记不得了。就像甜品被吃完后的牛皮纸袋，只剩下黄油的痕迹。"
     };
+  }
 
-    const state = { ...initialState };
-    const MAX_SMALL_PAPERS_FOR_BAR = 3;
-
-    function clamp(value, min, max) {
-      return Math.max(min, Math.min(max, value));
+  // 2.x 四年之内写完大论文 + 至少 36 月才触发毕业线
+  if (essay >= 100 && month >= MIN_GRAD_MONTH && month <= 48) {
+    // 0 篇：2.6
+    if (p === 0) {
+      return {
+        id: "2.6",
+        title: "毕业也很体面",
+        text:
+"你把大论文完整的交了上去。能拿到教职吗？你不敢想，但至少现在你还是毕业了。打印店已经熟练到一眼就看出“这是博士的厚度”，还问你需不需要顺便裱一份扉页。你抱着刚装订好的论文去学院办公室盖章，行政老师依旧头也不抬地问你“叫什么名字”。别人问你接下来打算做什么，你给出的回答只是中规中矩——就像你的毕业本身一样：不出彩，但足够体面，足以让一切看上去“到此为止”。"
+      };
     }
 
-    // 事件池：你的所有事件 + 小论文接收 + 需要 smallPapers>=1 的事件
-    const events = [
-      {
-        id: 1,
-        text: "你决定今天一定要写完一节正文。",
-        sanDelta: +3,
-        stressDelta: +4,
-        thesisDelta: +10,
-        deathDelta: -2,
-        paperDelta: 0
-      },
-      {
-        id: 2,
-        text: "导师在群里发：“各位最近的进展可以简单汇报一下吗？”你花两个小时斟酌了 50 个字。",
-        sanDelta: -2,
-        stressDelta: +7,
-        thesisDelta: +3,
-        deathDelta: +4,
-        paperDelta: 0
-      },
-      {
-        id: 3,
-        text: "你准备认真看一篇文献，用了三十分钟找 PDF，又花三十分钟纠结要不要记笔记，然后去刷手机了。",
-        sanDelta: -3,
-        stressDelta: +4,
-        thesisDelta: 0,
-        deathDelta: +3,
-        paperDelta: 0
-      },
-      {
-        id: 4,
-        text: "你打开 Forest 定了 3 小时的倒计时，然后在学习 5 分钟后用网页刷起了小红书。",
-        sanDelta: -3,
-        stressDelta: +5,
-        thesisDelta: +1,
-        deathDelta: +3,
-        paperDelta: 0
-      },
-      {
-        id: 5,
-        text: "在走廊遇到导师，装作没看见，你低头绕走了。",
-        sanDelta: -2,
-        stressDelta: +4,
-        thesisDelta: 0,
-        deathDelta: +2,
-        paperDelta: 0
-      },
-      {
-        id: 6,
-        text: "你本来打算早点睡，结果为了安慰自己“今天也不是完全没干活”，在睡前打开了 Zotero。",
-        sanDelta: -1,
-        stressDelta: +3,
-        thesisDelta: +2,
-        deathDelta: +1,
-        paperDelta: 0
-      },
-      {
-        id: 7,
-        text: "打开前两个月写下的草稿，发现完全看不懂自己在写什么。",
-        sanDelta: -4,
-        stressDelta: +4,
-        thesisDelta: 0,
-        deathDelta: +4,
-        paperDelta: 0
-      },
-      {
-        id: 8,
-        text: "你花了半天时间帮本科生改作业，突然意识到自己论文都没开题。",
-        sanDelta: -2,
-        stressDelta: +5,
-        thesisDelta: +1,
-        deathDelta: +3,
-        paperDelta: 0
-      },
-      {
-        id: 9,
-        text: "你看到同门在朋友圈发“新文 under review”，你关掉朋友圈，打开外卖软件。",
-        sanDelta: -3,
-        stressDelta: +4,
-        thesisDelta: 0,
-        deathDelta: +5,
-        paperDelta: 0
-      },
-      {
-        id: 10,
-        text: "你点开邮件，发现三周前鼓起勇气给大牛写的那封长邮件，依旧没有得到回复。",
-        sanDelta: -3,
-        stressDelta: +3,
-        thesisDelta: 0,
-        deathDelta: +4,
-        paperDelta: 0
-      },
-      {
-        id: 11,
-        text: "系里举行学术讲座，你全程听懂了开头的寒暄和结尾的“时间关系，我就讲到这里”。",
-        sanDelta: -1,
-        stressDelta: +1,
-        thesisDelta: +1,
-        deathDelta: +1,
-        paperDelta: 0
-      },
-      {
-        id: 12,
-        text: "你在写作软件里统计字数，发现删掉的比写出来的还多。",
-        sanDelta: -3,
-        stressDelta: +3,
-        thesisDelta: +1,
-        deathDelta: +3,
-        paperDelta: 0
-      },
-      {
-        id: 13,
-        text: "你安慰自己今天状态不好，决定明天再开始。",
-        sanDelta: +1,
-        stressDelta: +1,
-        thesisDelta: 0,
-        deathDelta: +1,
-        paperDelta: 0
-      },
-      {
-        id: 14,
-        text: "你在自习室默默学习一整天，晚上回宿舍被问“你最近好像挺闲的”。",
-        sanDelta: -2,
-        stressDelta: +3,
-        thesisDelta: +4,
-        deathDelta: +2,
-        paperDelta: 0
-      },
-      {
-        id: 15,
-        text: "你准备好好休息一天，结果导师发来一篇新文献让你“顺便看看”。",
-        sanDelta: -2,
-        stressDelta: +5,
-        thesisDelta: +2,
-        deathDelta: +3,
-        paperDelta: 0
-      },
-      {
-        id: 16,
-        text: "你尝试向别人解释你的课题，对方认真听完之后问：“那以后能找什么工作？”",
-        sanDelta: -3,
-        stressDelta: +4,
-        thesisDelta: 0,
-        deathDelta: +4,
-        paperDelta: 0
-      },
-      {
-        id: 17,
-        text: "你刷到学妹发朋友圈：拿了国家奖学金，手上还有三篇在投的小论文。",
-        sanDelta: -4,
-        stressDelta: +6,
-        thesisDelta: 0,
-        deathDelta: +8,
-        paperDelta: 0
-      },
-      {
-        id: 18,
-        text: "你突然理顺了一段核心论证，一口气写了 1200 字，还给导师发了更新邮件。",
-        sanDelta: +6,
-        stressDelta: +2,
-        thesisDelta: +18,
-        deathDelta: -6,
-        paperDelta: 0
-      },
-      {
-        id: 19,
-        text: "一位你很信任的老师认真看了你的稿子，告诉你：这东西是有潜力的。",
-        sanDelta: +5,
-        stressDelta: -2,
-        thesisDelta: +6,
-        deathDelta: -5,
-        paperDelta: 0
-      },
-      {
-        id: 20,
-        text: "你为了给一条脚注找原文，沿着引文追溯了四篇文章，最后发现这句话根本没人真正说过。",
-        sanDelta: -1,
-        stressDelta: +3,
-        thesisDelta: +2,
-        deathDelta: +2,
-        paperDelta: 0
-      },
-      {
-        id: 21,
-        text: "你去打印店打报销材料，看到前面的人在装订毕业论文，扉页上的“某某博士学位论文”让你心率短暂失常。",
-        sanDelta: -1,
-        stressDelta: +4,
-        thesisDelta: +2,
-        deathDelta: +2,
-        paperDelta: 0
-      },
-      {
-        id: 22,
-        text: "你收到审稿意见：R&R。三个评审里，一个说“太激进”，一个说“太保守”，还有一个说“完全没观点”。",
-        sanDelta: +1,
-        stressDelta: +5,
-        thesisDelta: +3,
-        deathDelta: +1,
-        paperDelta: 0
-      },
-      {
-        id: 23,
-        text: "你在寝室床上刷手机刷到半夜两点，突然冒出一个好点子，打开电脑准备写下来。",
-        sanDelta: +1,
-        stressDelta: +2,
-        thesisDelta: +3,
-        deathDelta: +1,
-        paperDelta: 0
-      },
-      {
-        id: 24,
-        text: "你花了一下午改格式，把中文引号全部换成英文，引文全部统一为作者-年份制，正文一个字没动。",
-        sanDelta: -1,
-        stressDelta: +2,
-        thesisDelta: 0,
-        deathDelta: +1,
-        paperDelta: 0
-      },
-      {
-        id: 25,
-        text: "你接到导师电话，对方只问了一句：“最近还好吧？”你一口气汇报了十五分钟进展，对方说：“那就这样。”",
-        sanDelta: -1,
-        stressDelta: +4,
-        thesisDelta: +2,
-        deathDelta: +2,
-        paperDelta: 0
-      },
-      {
-        id: 26,
-        text: "你去旁听别的专业的博士开题会，发现他们的焦虑和你的焦虑高度同构，只是用的术语不一样。",
-        sanDelta: +1,
-        stressDelta: -1,
-        thesisDelta: 0,
-        deathDelta: -1,
-        paperDelta: 0
-      },
-      {
-        id: 27,
-        text: "你被拉进一个新的微信群，群名叫“XX研究讨论组”，前七百条消息全是“已加”“欢迎欢迎”“辛苦老师”。",
-        sanDelta: 0,
-        stressDelta: +1,
-        thesisDelta: 0,
-        deathDelta: 0,
-        paperDelta: 0
-      },
-      {
-        id: 28,
-        text: "你在食堂排队，看见前面两位博士生在讨论基金申请，你把耳机音量悄悄调小了一格。",
-        sanDelta: -1,
-        stressDelta: +2,
-        thesisDelta: 0,
-        deathDelta: +1,
-        paperDelta: 0
-      },
-      {
-        id: 29,
-        text: "你为了推迟开始写今天的正文，甚至去认真打扫了宿舍，把桌面擦得一尘不染。",
-        sanDelta: +1,
-        stressDelta: +1,
-        thesisDelta: 0,
-        deathDelta: +1,
-        paperDelta: 0
-      },
-      {
-        id: 30,
-        text: "你参加读书会，轮到你发言时，你熟练地用一些高级术语重复了作者原话，没人听出来你其实没读完那一章。",
-        sanDelta: +1,
-        stressDelta: -1,
-        thesisDelta: +1,
-        deathDelta: 0,
-        paperDelta: 0
-      },
-      {
-        id: 31,
-        text: "你为了验证一个直觉，去查了十几篇实证研究，最后得出的结论是：“学界没有共识”。",
-        sanDelta: -1,
-        stressDelta: +2,
-        thesisDelta: +2,
-        deathDelta: +2,
-        paperDelta: 0
-      },
-      {
-        id: 32,
-        text: "你在宿舍楼下遇到刚入学的硕士生，对方向你咨询申请博士的经验，你思考了三秒钟，说：“先别急。”",
-        sanDelta: +1,
-        stressDelta: 0,
-        thesisDelta: 0,
-        deathDelta: -1,
-        paperDelta: 0
-      },
-      {
-        id: 33,
-        text: "你给自己放了一天假，什么也不做，晚上突然意识到：这可能是你最近效率最高的一天。",
-        sanDelta: +3,
-        stressDelta: -4,
-        thesisDelta: 0,
-        deathDelta: -2,
-        paperDelta: 0
-      },
-      {
-        id: 34,
-        text: "你把一段中文翻成英文，又从英文翻回中文，发现回来的版本比你原来写得清楚，你有点不爽。",
-        sanDelta: +1,
-        stressDelta: +1,
-        thesisDelta: +2,
-        deathDelta: 0,
-        paperDelta: 0
-      },
-      {
-        id: 35,
-        text: "你终于把一篇小论文投出去，点下提交按钮后感到前所未有的轻松。",
-        sanDelta: +4,
-        stressDelta: -3,
-        thesisDelta: +3,
-        deathDelta: -2,
-        paperDelta: 0
-      },
-      // 小论文接收事件：只有达到一定进度/时间才可能发生
-      {
-        id: 36,
-        text: "你收到期刊邮件，小论文被正式接收。你盯着“accepted”这行字看了整整五分钟。",
-        sanDelta: +7,
-        stressDelta: -5,
-        thesisDelta: +4,
-        deathDelta: -6,
-        paperDelta: +1,
-        condition(state) {
-          return state.thesis >= 20 && state.day >= 10 && state.smallPapers < 3;
-        }
-      },
-      // 需要 smallPapers>=1 才会触发的事件
-      {
-        id: 37,
-        text: "你在一场跨校读书会上认识一个研究类似方向的人，两人加完微信，互相说“以后可以多交流”，然后谁都没再说话。",
-        sanDelta: +2,
-        stressDelta: +1,
-        thesisDelta: +2,
-        deathDelta: -1,
-        paperDelta: 0,
-        condition(state) {
-          return state.smallPapers >= 1;
-        }
-      },
-      {
-        id: 38,
-        text: "你被同门拉去小酒馆吐槽学术圈，从制度骂到期刊，从导师骂到评审，骂完大家心情都好了不少。",
-        sanDelta: +3,
-        stressDelta: -6,
-        thesisDelta: 0,
-        deathDelta: -2,
-        paperDelta: 0
-      },
-
-      {
-        id: 39,
-        text: "你和很久不见的朋友去看了一场无关紧要的电影，出来之后谁也没提论文两个字。",
-        sanDelta: +4,
-        stressDelta: -7,
-        thesisDelta: 0,
-        deathDelta: -3,
-        paperDelta: 0
-      },
-      {
-        id: 40,
-        text: "你晚上去操场走了几圈，顺便听了几段无脑播客，回寝室的时候突然觉得今天也还行。",
-        sanDelta: +3,
-        stressDelta: -5,
-        thesisDelta: +1,
-        deathDelta: -2,
-        paperDelta: 0
-      },
-      {
-        id: 41,
-        text: "你和朋友在学校附近小饭馆点了一桌家常菜，互相抱怨完导师之后，谁也没劝谁“要坚持理想”。",
-        sanDelta: +2,
-        stressDelta: -4,
-        thesisDelta: 0,
-        deathDelta: -1,
-        paperDelta: 0
-      },
-      {
-        id: 42,
-        text: "你回家待了一个周末，被家人当成还是那个什么都不用操心的小孩，论文话题被默契地略过了。",
-        sanDelta: +5,
-        stressDelta: -5,
-        thesisDelta: -1,
-        deathDelta: -3,
-        paperDelta: 0
-      },
-      {
-        id: 43,
-        text: "你难得和同学去 KTV 嗨了一晚，第二天嗓子有点哑，但看到未读邮件的心率反应明显变迟钝了。",
-        sanDelta: +2,
-        stressDelta: -5,
-        thesisDelta: 0,
-        deathDelta: -1,
-        paperDelta: 0
-      },
-      {
-        id: 44,
-        text: "你在操场慢跑时突然意识到：哪怕今天一个字没写，世界也照常转动，这个念头让你意外地放松。",
-        sanDelta: +4,
-        stressDelta: -6,
-        thesisDelta: 0,
-        deathDelta: -2,
-        paperDelta: 0
+    // 1-2 篇：鼠鼠 → 2.5，否则 2.6
+    if (p === 1 || p === 2) {
+      if (hasTrait("鼠鼠我呀")) {
+        return {
+          id: "2.5",
+          title: "疲惫毕业",
+          text:
+"你以不太健康的方式冲完了大论文，从形式上看一切顺利，只是你已经不确定自己是否还愿意写任何学术文字。你确信自己患上了学术阳痿。最后一个月，你靠咖啡、功能饮料和导师的“再坚持一下”把正文从 7 万字顶到 9 万字，又亲手删回 8 万；你看着文档右下角的字数统计，一度分不清这是论文，还是某种需要献祭阳光和睡眠才能维持运转的咒语。你在这段时间里过上了只见天黑的日子，但未来是晴朗的吗？你不知道。"
+        };
       }
-    ];
-
-    function pickRandomEvent() {
-      const candidates = events.filter(e => {
-        if (typeof e.condition === "function") {
-          return e.condition(state);
-        }
-        return true;
-      });
-      if (candidates.length === 0) {
-        return null;
-      }
-      const index = Math.floor(Math.random() * candidates.length);
-      return candidates[index];
+      return {
+        id: "2.6",
+        title: "毕业也很体面",
+        text:
+"你把大论文完整的交了上去。能拿到教职吗？你不敢想，但至少现在你还是毕业了。打印店已经熟练到一眼就看出“这是博士的厚度”，还问你需不需要顺便裱一份扉页。你抱着刚装订好的论文去学院办公室盖章，行政老师依旧头也不抬地问你“叫什么名字”。别人问你接下来打算做什么，你给出的回答只是中规中矩——就像你的毕业本身一样：不出彩，但足够体面，足以让一切看上去“到此为止”。"
+      };
     }
 
-    function applyEvent(event) {
-      // 压力越高，写作效率越低，但别降得太狠
-      const slowFactor = Math.max(0.4, 1 - state.stress / 180);
-
-      state.san = clamp(state.san + event.sanDelta, 0, 100);
-      state.stress = clamp(state.stress + event.stressDelta, 0, 100);
-      state.deathWish = clamp(state.deathWish + event.deathDelta, 0, 100);
-
-      const thesisGain = Math.round(event.thesisDelta * slowFactor);
-      state.thesis = clamp(state.thesis + thesisGain, 0, 100);
-
-      if (event.paperDelta) {
-        state.smallPapers = Math.max(0, state.smallPapers + event.paperDelta);
+    // 3-5 篇：嫡长子/导师心腹 → 2.4，否则 2.3
+    if (p === 3 || p === 4 || p === 5) {
+      if (hasTrait("嫡长子") || hasTrait("导师心腹")) {
+        return {
+          id: "2.4",
+          title: "片叶不沾身",
+          text:
+"你发现自己并不热爱“真理”，但对“写项目书拿钱”有异乎寻常的天赋。你拿到了几个数额可观的课题，成了系里为数不多可以大方发 RA 费的人。你不再问“这是真的吗？”，而是先问“这好写吗？”。你已经不太记得自己的博士论文在说什么，但你非常熟悉各大城市的会场、酒店和附近的咖啡馆。你习惯于在不同的会议上用稍作修改的 PPT 讲类似的话题，在茶歇和人寒暄、交换名片、加微信。但偶尔，飞机降落时你会想：这算不算一种“academic life”？"
+        };
       }
-
-      state.day += 1;
-      state.draws += 1;
+      return {
+        id: "2.3",
+        title: "我们不再谈论月亮",
+        text:
+"几轮申请、几次崩溃之后，你接受了一个三本学院的教职。学院公众号需要你帮忙写“思政融入专业课”的示范案例。你每天在课堂上念 ppt，晚上回去在淘宝选电动按摩椅和泡脚桶。你知道，诺齐克、罗尔斯、巴特勒和伊利格瑞都离你很远了。你不敢再翻开那些书。你偶尔会想起大一在晴朗的教室蓝玻璃里学台湾文学，你说你也想躲在杜鹃花丛下，但你还是被命运找到了。"
+      };
     }
 
-    function updateUI() {
-      const sanValue = document.getElementById("sanValue");
-      const stressValue = document.getElementById("stressValue");
-      const thesisValue = document.getElementById("thesisValue");
-      const paperValue = document.getElementById("paperValue");
-      const deathValue = document.getElementById("deathValue");
-
-      const sanBar = document.getElementById("sanBar");
-      const stressBar = document.getElementById("stressBar");
-      const thesisBar = document.getElementById("thesisBar");
-      const paperBar = document.getElementById("paperBar");
-      const deathBar = document.getElementById("deathBar");
-
-      const daySpan = document.getElementById("day");
-      const countSpan = document.getElementById("count");
-
-      sanValue.textContent = state.san;
-      stressValue.textContent = state.stress;
-      thesisValue.textContent = state.thesis;
-      paperValue.textContent = state.smallPapers + " 篇";
-      deathValue.textContent = state.deathWish;
-
-      sanBar.style.width = state.san + "%";
-      stressBar.style.width = state.stress + "%";
-      thesisBar.style.width = state.thesis + "%";
-
-      const paperRatio = Math.min(state.smallPapers, MAX_SMALL_PAPERS_FOR_BAR) / MAX_SMALL_PAPERS_FOR_BAR;
-      paperBar.style.width = (paperRatio * 100) + "%";
-
-      deathBar.style.width = state.deathWish + "%";
-
-      daySpan.textContent = state.day;
-      countSpan.textContent = state.draws;
+    // 6-9 篇：咖啡→2.1（强判定）；否则卷王/左派+sans→2.2；否则 2.4
+    if (p >= 6 && p <= 9) {
+      if (hasTrait("咖啡是一种人类增强")) {
+        return {
+          id: "2.1",
+          title: "和气冲溶",
+          text:
+"你看透了体系，但有能力自证价值。你成为了大一新生口中那个课间会出去抽烟的酷导师。你知道哪些评审会在意格式，哪些评审只看立项金额；你知道教务系统几点钟最不容易崩溃、某几位同事哪种邮件标题最容易回。你上课时会讲一些略微“越界”的话，学生把你当成敢说真话的那类人；但你也清楚，真正危险的部分你都吞回去了，只留下一些安全的叹息和无害的愤世嫉俗。你上的第一堂课，18 岁的大一新生顶着一张云朵一样堆满胶原蛋白的脸蛋怯怯地问你：“老师，你当年真的很理想主义吗？”"
+        };
+      }
+      if (
+        hasTrait("卷王") ||
+        (hasTrait("学术左派") && hasTrait("sans-culottes"))
+      ) {
+        return {
+          id: "2.2",
+          title: "人生才刚刚开始",
+          text:
+"你用了三年博士毕业，在 top985 教职和普本 100w 安家费和教授 title 之间选了前者，但你不后悔。你在学校分到一间不大不小的办公室，窗外能看到几片象征性的绿化。第一学期，你认真把本科生课程重新设计了一遍，删掉了自己当年上课时最讨厌的部分，加入了当年希望有人讲给你的东西。你给学生布置了阅读清单，明知他们大多数看不完，还是固执地把那些书名一条条写上去。你相信这套系统，把微信签名改成了“广阔天地，大有可为”。"
+        };
+      }
+      return {
+        id: "2.4",
+        title: "片叶不沾身",
+        text:
+"你发现自己并不热爱“真理”，但对“写项目书拿钱”有异乎寻常的天赋。你拿到了几个数额可观的课题，成了系里为数不多可以大方发 RA 费的人。你不再问“这是真的吗？”，而是先问“这好写吗？”。你已经不太记得自己的博士论文在说什么，但你非常熟悉各大城市的会场、酒店和附近的咖啡馆。你习惯于在不同的会议上用稍作修改的 PPT 讲类似的话题，在茶歇和人寒暄、交换名片、加微信。但偶尔，飞机降落时你会想：这算不算一种“academic life”？"
+      };
     }
 
-    function checkEnding() {
-      const T = state.thesis;
-      const P = state.smallPapers;
-      const S = state.stress;
-      const SAN = state.san;
-      const D = state.deathWish;
-      const Day = state.day;
-
-      // 1. 抽身而退：想死值很高 + 论文没走一半 + 熬了一段时间
-      if (D >= 100 ) {
+    // ≥10 篇：嫡长子→2.7，否则 2.4
+    if (p >= 10) {
+      if (hasTrait("嫡长子")) {
         return {
-          id: "exit",
-          title: "结局：抽身而退",
+          id: "2.7",
+          title: "回头看，当时的月亮",
           text:
-            "你读博读的想死，你开始认真考虑退出目前的训练环境，于是你从光华楼上跃下，比纸张还轻，比墨水还淡\n\n" +
-            "如果现实里也出现类似念头，这已经超出小游戏的处理能力范围，请尽快和现实中的人或专业机构谈一谈。"
+"你坐在评审席位上，看着一摞摞年轻学者的申请书，开始给他们打 A、B、C。某个深夜，你忽然意识到：你成了当年你在匿名审稿系统里猜测过无数次的那种人。你开始熟练地写出那种你曾经痛恨的句子：“作者可以进一步澄清其理论贡献”“建议适当收窄研究问题的范围”“相关文献尚有欠缺”，你知道这些话既不会真正指导谁改变什么，又足够让整个流程看上去体面。偶尔，你会在某一份看得出花了巨大力气的申请上停顿几秒，把原本打算写的“B-”改成“B”，像给过去的自己递上一小抔迟到的慰问。"
         };
       }
-
-      // 2. 精神崩溃：SAN 掉空、压力很高
-      if (SAN <= 10 && S >= 70) {
-        return {
-          id: "collapse",
-          title: "结局：精神崩溃",
-          text:
-            "任何一句“要不先休学调整一下状态”听起来都不再像玩笑。\n" +
-            "你在宛平南路600号过上了梦寐以求的衣食无忧的日子，当然是家里帮你出的钱。"
-        };
-      }
-
-      // 3. 学术倦怠：压力极高 + 论文迟迟不成型
-      if (S >= 98 && T < 40 && Day >= 30 && D >= 60) {
-        return {
-          id: "burnout",
-          title: "结局：学术倦怠",
-          text:
-            "大论文迟迟不成型。你开始认真研究退学流程说明"
-        };
-      }
-
-      // 4. 人生才刚刚开始：高配好结局
-      if (T >= 100 && P >= 2 && SAN >= 60 && S <= 70 && D <= 40) {
-        return {
-          id: "fresh_start",
-          title: "结局：人生才刚刚开始",
-          text:
-            "你用了三年博士毕业，在 top985 教职和普本 100w 安家费加教授 title 之间选了前者。\n" +
-            "但你不后悔。你知道，广阔天地，大有可为。\n" 
-        };
-      }
-
-      // 5. 和气冲溶：看透体系又能自证价值
-      if (T >= 100 && P >= 1 && SAN >= 50 && S >= 40 && S <= 85 && D >= 30 && D <= 70) {
-        return {
-          id: "heqi",
-          title: "结局：和气冲溶",
-          text:
-            "你看透了体系的运行方式，也知道哪些地方必须妥协、哪些地方必须坚持。\n" +
-            "你成为了大一新生口中那个课间会出去抽烟的酷导师"
-        };
-      }
-
-      // 6. 片叶不沾身：项目书天赋
-      if (T >= 60 && P >= 2 && SAN >= 40 && S >= 60 && D <= 50) {
-        return {
-          id: "project",
-          title: "结局：片叶不沾身",
-          text:
-            "你发现自己并不热爱“真理”，但对“写项目书拿钱”有异乎寻常的天赋。\n" +
-            "你拿到了几个数额可观的课题，成了系里为数不多可以大方发 RA 费的人。\n" +
-            "你不再问“这是真的吗？”，而是先问“这好写吗？”"
-        };
-      }
-
-      // 7. 回头看，当时的月亮：评审席上的你
-      if (T >= 100 && P >= 3 && Day >= 30 && S >= 50 && S <= 90 && SAN >= 20 && SAN <= 70 && D >= 30 && D <= 70) {
-        return {
-          id: "reviewer",
-          title: "结局：回头看，当时的月亮",
-          text:
-            "你坐在评审席位上，看着一摞摞年轻学者的申请书，开始给他们打 A、B、C。\n" +
-            "某个深夜，你忽然意识到：你成了当年你在匿名审稿系统里猜测过无数次的那种人。"
-        };
-      }
-
-      // 8. 会议永动机：飞来飞去的 academic life
-      if (T >= 80 && P >= 1 && Day >= 25 && S >= 80 && D >= 30 && D <= 80 && SAN >= 20) {
-        return {
-          id: "conference",
-          title: "结局：会议永动机",
-          text:
-            "你已经不太记得自己的博士论文在说什么，但你非常熟悉各大城市的会场、酒店和附近的咖啡馆。\n" +
-            "你习惯于在不同的会议上用稍作修改的 PPT 讲类似的话题，在茶歇和人寒暄、交换名片、加微信。\n" +
-            "偶尔，飞机降落时你会想：这算不算一种 academic life？"
-        };
-      }
-
-      // 9. 乡镇文明人：三本教职生活
-      if (T >= 80 && SAN >= 30 && S >= 50 && D >= 30 && D <= 70 && Day >= 20) {
-        return {
-          id: "town",
-          title: "结局：乡镇文明人",
-          text:
-            "几轮申请、几次崩溃之后，你接受了一个三本学院的教职。\n" +
-            "学院公众号需要你帮忙写“思政融入专业课”的示范案例，你每天在课堂上念 PPT，晚上回去在淘宝选电动按摩椅和泡脚桶。"
-        };
-      }
-
-      // 10. 体面毕业：标准好结局
-      if (T >= 100 && SAN >= 40 && S <= 80 && D <= 70) {
-        return {
-          id: "ok_grad",
-          title: "结局：体面毕业",
-          text:
-            "你把大论文完整地交了上去。能不能拿到教职，你不敢想，但至少现在你还是毕业了。\n" +
-            "你对学术既不狂热也不厌恶，只是把它当成一种可能的工作路径。"
-        };
-      }
-
-      // 11. 疲惫毕业：学术阳痿
-      if (T >= 100 && SAN < 40 && D >= 60) {
-        return {
-          id: "tired_grad",
-          title: "结局：疲惫毕业",
-          text:
-            "你以不太健康的方式冲完了大论文，从形式上看一切顺利。\n" +
-            "只是你已经不确定自己是否还愿意写任何学术文字，你确信自己患上了某种形式的“学术阳痿”。"
-        };
-      }
-
-      // 12. 我们不再谈论月亮：彻底脱钩学术
-      if (T >= 80 && P <= 1 && SAN >= 20 && SAN <= 60 && D >= 40 && D <= 85 && S >= 40) {
-        return {
-          id: "no_moon",
-          title: "结局：我们不再谈论月亮",
-          text:
-            "你博士毕业后随便找了份工作，稳定、普通、可预期。\n" +
-            "你知道，诺齐克、罗尔斯、巴特勒和伊利格瑞都离你很远了，你不太敢再翻开那些书，但也不再需要为此道歉。"
-        };
-      }
-
-      return null;
+      return {
+        id: "2.4",
+        title: "片叶不沾身",
+        text:
+"你发现自己并不热爱“真理”，但对“写项目书拿钱”有异乎寻常的天赋。你拿到了几个数额可观的课题，成了系里为数不多可以大方发 RA 费的人。你不再问“这是真的吗？”，而是先问“这好写吗？”。你已经不太记得自己的博士论文在说什么，但你非常熟悉各大城市的会场、酒店和附近的咖啡馆。你习惯于在不同的会议上用稍作修改的 PPT 讲类似的话题，在茶歇和人寒暄、交换名片、加微信。但偶尔，飞机降落时你会想：这算不算一种“academic life”？"
+      };
     }
+  }
 
-    document.addEventListener("DOMContentLoaded", () => {
-      const drawBtn = document.getElementById("drawBtn");
-      const eventBox = document.getElementById("eventBox");
-      const eventText = document.getElementById("eventText");
-      const endingBox = document.getElementById("endingBox");
-      const endingTitle = document.getElementById("endingTitle");
-      const endingText = document.getElementById("endingText");
-      const restartBtn = document.getElementById("restartBtn");
+  // 4.x 四年满了但 essay 没写完
+  if (month >= 48 && essay < 100) {
+    if (hasTrait("第一代大学生")) {
+      return {
+        id: "4.2",
+        title: "恭喜肄业",
+        text:
+"你是一个人文社科博士，从你决定读博的那一刻起，你就该意识到，世界从来都不仁慈；你在红色的录取通知书搭建的迷梦里安然睡去了，你忘记了世界的精明和算计，忘记了文本替你抵御但从未远离的残酷和野蛮。恭喜肄业，梦醒了，现在你作为一个人文社科博士，会做的只剩乞讨了。"
+      };
+    }
+    if (hasTrait("章鱼哥")) {
+      return {
+        id: "4.3",
+        title: "站在风口尾巴上的猪",
+        text:
+"你最终发现了自己并不擅长做学术，但是很擅长起号。你建立了自己的品牌，开始在小红书卖课，在 B 站蹭热梗，在播客邀请你曾经的导师“共建学院影响力”，在抖音穿紧身衣服鬼迷日眼地讲概念。你的简介是国旗斜杠 emoji 母校专业 MBTI 和“人生是旷野”，相当多的人吃这一套，也有相当多的人不吃这一套，比如曾经的你。但不要紧，你的新一条爆文标题是“轻舟已过万重山”。"
+      };
+    }
+    if (hasTrait("家底殷实")) {
+      return {
+        id: "4.4",
+        title: "荣归故里",
+        text:
+"你回家啃老了。你书桌上那台电脑，是当年“为了方便你写论文”买的顶配，现在主要用于看流媒体、逛购物网站和偶尔打开一下 Word，确认自己确实不想再写东西。你的作息慢慢稳定下来：上午在江景阳台上喝咖啡，翻两页当年读博时留下来的书单，翻到第三页收到 IFC 梵克雅宝柜姐的微信，说有新花色到货给你留了一条。从统计学上看，你的确是那种极少数样本；你也隐约知道，如果不是出生在这个城市、这个家庭，这一切都不可能这么轻盈。但你并不打算把这件事想得太清楚——毕竟，做一个对自己的特权保持若有若无自觉的人文社科沪奶，本身也是一种需要练习的角色。"
+      };
+    }
+    return {
+      id: "4.1",
+      title: "学术倦怠",
+      text:
+"你每天还是会打开电脑，找到那份名叫“dissertation_main”的文档，把光标放在同一个小节下面。你调整过段落间距，换过字体，把“初步考虑”改成“尝试性讨论”，又改成“暂拟”，再统一改回“本文将”。你发明了一整套高效拖延术：为了避免写这一段，你可以去整理 Zotero、重装 Obsidian、整理桌面、为不同版本的文件起新名字。你的文件夹从“final”一路长成“final_final_REAL_last_v3”——但大论文迟迟不成型。你开始认真研究退学流程说明。"
+    };
+  }
 
-      updateUI();
+  return null;
+}
 
-      drawBtn.addEventListener("click", () => {
-        if (state.ended) return;
+/***********************
+ * 投稿检定：paperProgress ≥ 100
+ ***********************/
+function trySubmitPapers(logParts) {
+  let submissions = Math.floor(state.paperProgress / 100);
+  state.paperProgress = state.paperProgress % 100;
+  if (submissions <= 0) return;
 
-        const event = pickRandomEvent();
-        if (!event) {
-          eventText.textContent = "今天什么也没发生。你在寝室里发呆了一整天。";
-          eventBox.classList.remove("hidden");
-          state.day += 1;
-          state.draws += 1;
-          updateUI();
-          return;
+  for (let i = 0; i < submissions; i++) {
+    let prob = 0.4;
+    if (hasTrait("嫡长子")) prob += 0.15;
+    if (hasTrait("导师心腹")) prob += 0.1;
+    if (hasTrait("卷王")) prob -= 0.1;
+    if (hasTrait("学术左派")) prob -= 0.05;
+    if (hasTrait("凤尾")) prob += 0.1;
+    prob = clamp(prob, 0.05, 0.9);
+
+    if (Math.random() < prob) {
+      state.paperAccepted += 1;
+      logParts.push(`本月有一篇小论文接收（当前总数：${state.paperAccepted}）。`);
+      state.san += 3;
+    } else {
+      logParts.push(`本月有一篇小论文被拒。`);
+      state.san -= 2;
+    }
+  }
+}
+
+/***********************
+ * UI 逻辑
+ ***********************/
+const setupScreen = document.getElementById("setup-screen");
+const gameScreen = document.getElementById("game-screen");
+const startGameBtn = document.getElementById("start-game-btn");
+const setupError = document.getElementById("setup-error");
+
+const bodyTraitsDiv = document.getElementById("body-traits");
+const academicTraitsDiv = document.getElementById("academic-traits");
+const relationTraitsDiv = document.getElementById("relation-traits");
+
+const statMonth = document.getElementById("stat-month");
+const statSan = document.getElementById("stat-san");
+const statEssay = document.getElementById("stat-essay");
+const statIdea = document.getElementById("stat-idea");
+const statPaperProgress = document.getElementById("stat-paper-progress");
+const statPaperAccepted = document.getElementById("stat-paper-accepted");
+
+const chosenBodyPill = document.getElementById("chosen-body-pill");
+const chosenAcademicPill = document.getElementById("chosen-academic-pill");
+const chosenRelationPill = document.getElementById("chosen-relation-pill");
+
+const nextMonthBtn = document.getElementById("next-month-btn");
+const actionError = document.getElementById("action-error");
+const currentEventTitle = document.getElementById("current-event-title");
+const currentEventDesc = document.getElementById("current-event-desc");
+const currentDeltaDiv = document.getElementById("current-delta");
+const logDiv = document.getElementById("log");
+const endingCard = document.getElementById("ending-card");
+const endingContent = document.getElementById("ending-content");
+
+function renderStatus() {
+  statMonth.textContent = state.month;
+  statSan.textContent = Math.round(state.san);
+  statEssay.textContent = Math.round(state.essay);
+  statIdea.textContent = Math.round(state.idea);
+  statPaperProgress.textContent = Math.round(state.paperProgress);
+  statPaperAccepted.textContent = state.paperAccepted;
+}
+
+function appendLogEntry(html) {
+  const div = document.createElement("div");
+  div.className = "log-entry";
+  div.innerHTML = html;
+  logDiv.prepend(div);
+}
+
+/********* 渲染特质选择 + 互斥强制 *********/
+function renderTraitCheckboxes() {
+  const containerMap = {
+    body: bodyTraitsDiv,
+    academic: academicTraitsDiv,
+    relation: relationTraitsDiv
+  };
+
+  TRAITS.forEach(tr => {
+    const wrapper = document.createElement("div");
+    wrapper.className = "trait-item";
+
+    const label = document.createElement("label");
+    const input = document.createElement("input");
+    input.type = "checkbox";
+    input.value = tr.name;
+    input.dataset.group = tr.group;
+    input.dataset.traitName = tr.name;
+
+    label.appendChild(input);
+
+    const spanTitle = document.createElement("span");
+    spanTitle.className = "trait-title";
+    spanTitle.textContent = tr.name;
+    label.appendChild(spanTitle);
+
+    wrapper.appendChild(label);
+
+    const descDiv = document.createElement("div");
+    descDiv.className = "trait-desc";
+    descDiv.textContent = tr.desc;
+    wrapper.appendChild(descDiv);
+
+    containerMap[tr.group].appendChild(wrapper);
+  });
+
+  // 互斥检查：选中互斥项时立刻阻止
+  document.querySelectorAll("#setup-screen input[type=checkbox]").forEach(chk => {
+    chk.addEventListener("change", (e) => {
+      if (!e.target.checked) return; // 只在勾选时检查
+
+      const traitName = e.target.dataset.traitName;
+      for (const pair of MUTUALLY_EXCLUSIVE) {
+        if (pair.includes(traitName)) {
+          const otherName = pair[0] === traitName ? pair[1] : pair[0];
+          const otherChk = document.querySelector(
+            `#setup-screen input[data-trait-name="${otherName}"]`
+          );
+          if (otherChk && otherChk.checked) {
+            // 冲突：取消当前勾选并提示
+            e.target.checked = false;
+            setupError.textContent = `特质“${traitName}”和“${otherName}”互斥，不能同时选择。`;
+            return;
+          }
         }
-
-        eventText.textContent = event.text;
-        eventBox.classList.remove("hidden");
-
-        applyEvent(event);
-        updateUI();
-
-        const ending = checkEnding();
-        if (ending) {
-          state.ended = true;
-          endingTitle.textContent = ending.title;
-          endingText.textContent = ending.text;
-          endingBox.classList.remove("hidden");
-          drawBtn.disabled = true;
-          drawBtn.textContent = "游戏已结束";
-        }
-      });
-
-      restartBtn.addEventListener("click", () => {
-        Object.assign(state, { ...initialState });
-        updateUI();
-        eventBox.classList.add("hidden");
-        endingBox.classList.add("hidden");
-        eventText.textContent = "";
-        drawBtn.disabled = false;
-        drawBtn.textContent = "抽取今日事件";
-      });
+      }
+      setupError.textContent = "";
     });
-  </script>
+  });
+}
+
+function validateTraitSelection(selected) {
+  if (selected.body.length !== 2) {
+    return "身体特质必须选择恰好 2 个。";
+  }
+  if (selected.academic.length !== 2) {
+    return "学术特质必须选择恰好 2 个。";
+  }
+  if (selected.relation.length !== 2) {
+    return "关系特质必须选择恰好 2 个。";
+  }
+  // 再保险：整体互斥检查
+  const all = [...selected.body, ...selected.academic, ...selected.relation];
+  for (const pair of MUTUALLY_EXCLUSIVE) {
+    if (all.includes(pair[0]) && all.includes(pair[1])) {
+      return `特质“${pair[0]}”和“${pair[1]}”不能同时选择。`;
+    }
+  }
+  return null;
+}
+
+function initTraitsEffects() {
+  for (const group of Object.values(state.traits)) {
+    for (const t of group) {
+      const eff = traitEffects[t];
+      if (eff && eff.init) eff.init(state);
+    }
+  }
+  state.san = clamp(state.san, 0, 100);
+}
+
+/********* 初始开始按钮 *********/
+startGameBtn.addEventListener("click", () => {
+  setupError.textContent = "";
+  const checked = document.querySelectorAll(
+    "#setup-screen input[type=checkbox]:checked"
+  );
+  const selected = { body: [], academic: [], relation: [] };
+  checked.forEach(chk => {
+    selected[chk.dataset.group].push(chk.value);
+  });
+
+  const err = validateTraitSelection(selected);
+  if (err) {
+    setupError.textContent = err;
+    return;
+  }
+
+  state.traits = selected;
+  initTraitsEffects();
+  renderStatus();
+
+  chosenBodyPill.textContent = "身体：" + state.traits.body.join(" / ");
+  chosenAcademicPill.textContent = "学术：" + state.traits.academic.join(" / ");
+  chosenRelationPill.textContent = "关系：" + state.traits.relation.join(" / ");
+
+  setupScreen.classList.add("hidden");
+  gameScreen.classList.remove("hidden");
+});
+
+/********* 每月推进 *********/
+nextMonthBtn.addEventListener("click", () => {
+  if (state.gameOver) return;
+
+  actionError.textContent = "";
+  currentEventTitle.textContent = "";
+  currentEventDesc.textContent = "";
+  currentDeltaDiv.textContent = "";
+
+  // 读取主线选择
+  const mainSelected = Array.from(
+    document.querySelectorAll("input[name='main-action']:checked")
+  ).map(chk => chk.value);
+
+  if (mainSelected.length !== 2) {
+    actionError.textContent = "本月主线任务必须选 2 项。";
+    return;
+  }
+
+  const oldMonth = state.month;
+  let logParts = [];
+  logParts.push(`第 ${state.month} 月：`);
+
+  // 主线基础增量
+  let deltas = { san: 0, essay: 0, idea: 0, paperProgress: 0 };
+  for (const key of mainSelected) {
+    const action = MAIN_ACTIONS[key];
+    deltas.san += action.deltas.san;
+    deltas.essay += action.deltas.essay;
+    deltas.idea += action.deltas.idea;
+    deltas.paperProgress += action.deltas.paperProgress;
+  }
+
+  // 抽随机事件
+  const event = drawRandomEvent();
+  currentEventTitle.textContent = `[${event.id}] ${event.title}`;
+  currentEventDesc.textContent = event.desc;
+
+  // 主线被事件抵消的情况
+  if (event.cancelAllMain) {
+    deltas = { san: 0, essay: 0, idea: 0, paperProgress: 0 };
+    logParts.push("本月你决定完全放弃学术计划，主线任务全部失效。");
+  } else if (event.cancelRandomMain) {
+    const cancelled = mainSelected[Math.floor(Math.random() * mainSelected.length)];
+    const action = MAIN_ACTIONS[cancelled];
+    deltas.san -= action.deltas.san;
+    deltas.essay -= action.deltas.essay;
+    deltas.idea -= action.deltas.idea;
+    deltas.paperProgress -= action.deltas.paperProgress;
+    logParts.push(`随机事件导致主线任务【${action.name}】实质失效。`);
+  }
+
+  // 加上事件自身 delta
+  deltas.san += event.deltas.san;
+  deltas.essay += event.deltas.essay;
+  deltas.idea += event.deltas.idea;
+  deltas.paperProgress += event.deltas.paperProgress;
+
+  // 特质调制本月总 delta
+  applyTraitDeltas(deltas);
+
+  // 应用到状态
+  state.san += deltas.san;
+  state.essay += deltas.essay;
+  state.idea += deltas.idea;
+  state.paperProgress += deltas.paperProgress;
+
+  state.san = clamp(state.san, 0, 100);
+  state.essay = clamp(state.essay, 0, 100);
+  state.idea = Math.max(0, state.idea);
+  state.paperProgress = Math.max(0, state.paperProgress);
+
+  // 事件直接 accept
+  if (event.acceptedDirect) {
+    state.paperAccepted += 1;
+    logParts.push("随机事件：有一篇小论文直接被接受。");
+  }
+
+  // 投稿检定
+  trySubmitPapers(logParts);
+
+  // 每月自然恢复 / 持续效果
+  applyMonthlyTraitEffects();
+  state.san = clamp(state.san, 0, 100);
+
+  renderStatus();
+
+  // 展示当月变化
+  const dSan = deltas.san.toFixed(1);
+  const dEssay = deltas.essay.toFixed(1);
+  const dIdea = deltas.idea.toFixed(1);
+  const dPP = deltas.paperProgress.toFixed(1);
+  currentDeltaDiv.textContent =
+    `本月变化（含特质加成）：san ${dSan >= 0 ? "+" : ""}${dSan}，` +
+    `essay ${dEssay >= 0 ? "+" : ""}${dEssay}，` +
+    `idea ${dIdea >= 0 ? "+" : ""}${dIdea}，` +
+    `小论文进度 ${dPP >= 0 ? "+" : ""}${dPP}。`;
+
+  logParts.push(
+    `主线：${mainSelected.map(k => MAIN_ACTIONS[k].name).join(" + ")}；事件：[${event.id}] ${event.title}`
+  );
+  logParts.push(
+    `san=${state.san.toFixed(1)}，essay=${state.essay.toFixed(1)}，` +
+    `idea=${state.idea.toFixed(1)}，paperProgress=${state.paperProgress.toFixed(1)}，` +
+    `已接收小论文=${state.paperAccepted}`
+  );
+
+  appendLogEntry(logParts.join("\n"));
+
+  // 结局判定在「本月」完成后立即进行，用当前 month（oldMonth）
+  const ending = determineEnding();
+  if (ending) {
+    state.gameOver = true;
+    nextMonthBtn.disabled = true;
+    endingCard.classList.remove("hidden");
+    endingContent.textContent = `【${ending.id}】${ending.title}\n\n${ending.text}`;
+    return;
+  }
+
+  // 如果已经 48 个月以上还没结局，强制走 4.x 或兜底
+  if (oldMonth >= 48) {
+    const fallback = determineEnding() || {
+      id: "4.1",
+      title: "学术倦怠（默认超时）",
+      text: "时间到了，你也不知道自己在干什么，总之论文没有好好写完。"
+    };
+    state.gameOver = true;
+    nextMonthBtn.disabled = true;
+    endingCard.classList.remove("hidden");
+    endingContent.textContent = `【${fallback.id}】${fallback.title}\n\n${fallback.text}`;
+    return;
+  }
+
+  // 没结局，则进入下一月
+  state.month += 1;
+  renderStatus();
+
+  // 清空本月主线勾选，让玩家明确为下一月重新选择
+  document
+    .querySelectorAll("input[name='main-action']")
+    .forEach(chk => (chk.checked = false));
+});
+
+/***********************
+ * 初始化
+ ***********************/
+renderTraitCheckboxes();
+renderStatus();
+</script>
 </body>
 </html>
